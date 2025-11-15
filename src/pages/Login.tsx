@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Music2, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -13,6 +14,7 @@ const Login = () => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('estudiante');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +25,16 @@ const Login = () => {
 
     try {
       await login(email, password);
+      // Verificar que el rol del usuario coincida con el rol seleccionado
+      const storedUser = localStorage.getItem('conservatorio_user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        if (user.role !== selectedRole) {
+          setError(`El usuario no tiene el rol de ${selectedRole}`);
+          setLoading(false);
+          return;
+        }
+      }
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
@@ -94,6 +106,22 @@ const Login = () => {
                   required
                   className="font-body"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="role" className="font-heading">
+                  Tipo de Usuario
+                </Label>
+                <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as UserRole)}>
+                  <SelectTrigger className="font-body">
+                    <SelectValue placeholder="Selecciona tu rol" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="estudiante">Estudiante</SelectItem>
+                    <SelectItem value="profesor">Profesor</SelectItem>
+                    <SelectItem value="admin">Administrador</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <Button

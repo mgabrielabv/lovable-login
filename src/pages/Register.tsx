@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Music2, AlertCircle, ArrowRight } from 'lucide-react';
+import { Music2, AlertCircle, ArrowRight, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Register = () => {
@@ -161,6 +161,15 @@ const Register = () => {
                     </div>
                   </RadioGroup>
                 </div>
+
+                <Alert className="bg-blue-50 border-blue-200">
+                  <Info className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-900 text-sm">
+                    <strong>Nota importante:</strong> Los administradores NO se registran por este medio. 
+                    El registro de profesores lo realiza directamente el administrador desde el panel de control. 
+                    La opción "Administrador" está disponible solo para pruebas de desarrollo.
+                  </AlertDescription>
+                </Alert>
 
                 <Button
                   onClick={handleRoleSelect}
