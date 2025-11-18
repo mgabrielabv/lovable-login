@@ -44,8 +44,18 @@ All colors MUST be HSL.
 
     /* Shadows and effects */
     --shadow-elegant: 0 10px 30px -10px hsl(292 100% 20% / 0.15);
+    --shadow-glow: 0 0 40px hsl(284 100% 81% / 0.3);
+    --shadow-card: 0 4px 20px hsl(292 100% 20% / 0.08);
+    --shadow-hover: 0 8px 30px hsl(292 100% 20% / 0.12);
+    
+    /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(292 100% 20%), hsl(284 68% 24%));
     --gradient-accent: linear-gradient(180deg, hsl(256 50% 82%), hsl(284 100% 81%));
+    --gradient-hero: linear-gradient(135deg, hsl(43 57% 95%), hsl(256 50% 90%));
+    --gradient-glass: linear-gradient(135deg, hsla(0, 0%, 100%, 0.1), hsla(0, 0%, 100%, 0.05));
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
@@ -86,5 +96,61 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Glass Morphism */
+  .glass {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  
+  .glass-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  
+  /* Floating Animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  /* Gradient Text */
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Smooth Transitions */
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  /* Enhanced Shadows */
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-hover {
+    box-shadow: var(--shadow-hover);
   }
 }
