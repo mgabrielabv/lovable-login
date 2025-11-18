@@ -7,8 +7,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import ModeSelection from "./pages/ModeSelection";
+import LoginByRole from "./pages/LoginByRole";
+import RegisterStudent from "./pages/RegisterStudent";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
@@ -23,8 +24,9 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Register />} />
+            <Route path="/seleccion-modo" element={<ModeSelection />} />
+            <Route path="/login/:role" element={<LoginByRole />} />
+            <Route path="/registro/estudiante" element={<RegisterStudent />} />
             <Route 
               path="/dashboard" 
               element={

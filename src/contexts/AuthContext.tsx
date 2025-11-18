@@ -7,13 +7,21 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  cedula: string;
+  cedulaRepresentante?: string;
+  esMenor?: boolean;
   professorId?: string;
+  fechaNacimiento?: string;
+  telefono?: string;
+  instrumento?: string;
+  nivel?: string;
+  horario?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: UserRole, professorId?: string) => Promise<void>;
+  login: (cedula: string, password: string, role: UserRole, professorId?: string) => Promise<void>;
+  register: (userData: Partial<User>, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -31,17 +39,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    // Simulate API call
+  const login = async (cedula: string, password: string, role: UserRole, professorId?: string) => {
     const storedUsers = localStorage.getItem('conservatorio_users');
     const users = storedUsers ? JSON.parse(storedUsers) : [];
     
     const foundUser = users.find((u: User & { password: string }) => 
-      u.email === email && u.password === password
+      u.cedula === cedula && u.password === password && u.role === role
     );
 
     if (!foundUser) {
-      throw new Error('Credenciales inválidas');
+      throw new Error('Credenciales inválidas o rol incorrecto');
+    }
+
+    // Validar ID de profesor/admin si es necesario
+    if ((role === 'profesor' || role === 'admin') && professorId) {
+      if (foundUser.professorId !== professorId) {
+        throw new Error('ID de ' + (role === 'profesor' ? 'profesor' : 'administrador') + ' incorrecto');
+      }
     }
 
     const userWithoutPassword = {
@@ -49,40 +63,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name: foundUser.name,
       email: foundUser.email,
       role: foundUser.role,
-      professorId: foundUser.professorId
+      cedula: foundUser.cedula,
+      cedulaRepresentante: foundUser.cedulaRepresentante,
+      esMenor: foundUser.esMenor,
+      professorId: foundUser.professorId,
+      fechaNacimiento: foundUser.fechaNacimiento,
+      telefono: foundUser.telefono,
+      instrumento: foundUser.instrumento,
+      nivel: foundUser.nivel,
+      horario: foundUser.horario
     };
 
     setUser(userWithoutPassword);
     localStorage.setItem('conservatorio_user', JSON.stringify(userWithoutPassword));
   };
 
-  const register = async (
-    name: string, 
-    email: string, 
-    password: string, 
-    role: UserRole,
-    professorId?: string
-  ) => {
-    // Validate professor/admin ID
-    if ((role === 'profesor' || role === 'admin') && !professorId) {
-      throw new Error('El ID es requerido para profesores y administradores');
-    }
-
+  const register = async (userData: Partial<User>, password: string) => {
     const storedUsers = localStorage.getItem('conservatorio_users');
     const users = storedUsers ? JSON.parse(storedUsers) : [];
 
+    // Check if cedula already exists
+    if (users.some((u: User) => u.cedula === userData.cedula)) {
+      throw new Error('Esta cédula ya está registrada');
+    }
+
     // Check if email already exists
-    if (users.some((u: User) => u.email === email)) {
+    if (users.some((u: User) => u.email === userData.email)) {
       throw new Error('Este correo ya está registrado');
     }
 
     const newUser = {
       id: Date.now().toString(),
-      name,
-      email,
-      password,
-      role,
-      professorId: role !== 'estudiante' ? professorId : undefined
+      ...userData,
+      password
     };
 
     users.push(newUser);
@@ -93,7 +106,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name: newUser.name,
       email: newUser.email,
       role: newUser.role,
-      professorId: newUser.professorId
+      cedula: newUser.cedula,
+      cedulaRepresentante: newUser.cedulaRepresentante,
+      esMenor: newUser.esMenor,
+      professorId: newUser.professorId,
+      fechaNacimiento: newUser.fechaNacimiento,
+      telefono: newUser.telefono,
+      instrumento: newUser.instrumento,
+      nivel: newUser.nivel,
+      horario: newUser.horario
     };
 
     setUser(userWithoutPassword);

@@ -10,13 +10,13 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
 
   if (!user) {
-    navigate('/login');
+    navigate('/seleccion-modo');
     return null;
   }
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/seleccion-modo');
   };
 
   const getRoleDisplay = (role: string) => {
@@ -72,14 +72,22 @@ const Dashboard = () => {
           <Card className="border-2 border-accent shadow-[var(--shadow-elegant)]">
             <CardHeader>
               <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <CardTitle className="text-3xl font-display">
-                    Bienvenido {roleDisplay.label}, {user.name}
-                  </CardTitle>
-                  <CardDescription className="text-base font-body">
-                    Has iniciado sesión correctamente en el portal del conservatorio
-                  </CardDescription>
-                </div>
+              <div className="space-y-2">
+                <CardTitle className="text-3xl font-display">
+                  Bienvenido {roleDisplay.label}, {user.name}
+                </CardTitle>
+                <CardDescription className="text-base font-body space-y-1">
+                  {user.esMenor && user.cedulaRepresentante && (
+                    <div>Representante: Cédula {user.cedulaRepresentante}</div>
+                  )}
+                  {user.cedula && !user.esMenor && (
+                    <div>Cédula: {user.cedula}</div>
+                  )}
+                  {user.professorId && (
+                    <div>ID: {user.professorId}</div>
+                  )}
+                </CardDescription>
+              </div>
                 <Badge className={`${roleDisplay.color} text-white font-heading px-4 py-2 text-sm`}>
                   {roleDisplay.label}
                 </Badge>
@@ -100,66 +108,54 @@ const Dashboard = () => {
                 <div className="flex items-center gap-2 p-4 rounded-lg bg-green-50 border border-green-200">
                   <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
                   <span className="font-body font-medium text-green-900">
-                    Login exitoso - Rol: {roleDisplay.label} - Conexión verificada
+                    ✅ Login exitoso - Rol: {user.role} - Conexión verificada
                   </span>
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
                 </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 border border-border">
-                    <User className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-body text-muted-foreground">Rol</p>
-                      <p className="font-heading font-semibold text-foreground">
-                        {roleDisplay.label}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 border border-border">
-                    <Mail className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-body text-muted-foreground">Correo</p>
-                      <p className="font-heading font-semibold text-foreground break-all">
-                        {user.email}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* User Information Card */}
-          <Card className="border-2 border-accent shadow-[var(--shadow-elegant)]">
-            <CardHeader>
-              <CardTitle className="font-heading">Información del Usuario</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-                  <User className="h-5 w-5 text-primary" />
-                  <div className="flex-1">
-                    <p className="text-sm font-body text-muted-foreground">Nombre Completo</p>
-                    <p className="font-heading font-semibold">{user.name}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-                  <Mail className="h-5 w-5 text-primary" />
-                  <div className="flex-1">
-                    <p className="text-sm font-body text-muted-foreground">Correo Electrónico</p>
-                    <p className="font-heading font-semibold">{user.email}</p>
-                  </div>
-                </div>
-                {user.professorId && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-lavender/20 to-lightLavender/20 border-2 border-lavender/30">
-                    <IdCard className="h-5 w-5 text-secondary" />
-                    <div className="flex-1">
-                      <p className="text-sm font-body text-muted-foreground">
-                        ID de {user.role === 'profesor' ? 'Profesor' : 'Administrador'}
-                      </p>
-                      <p className="font-heading font-bold text-secondary">{user.professorId}</p>
+                {/* Información adicional según el rol */}
+                <div className="grid gap-4 mt-4">
+                  <div className="p-4 rounded-lg bg-background border border-accent">
+                    <div className="flex items-center gap-2 mb-2">
+                      <User className="h-4 w-4 text-primary" />
+                      <span className="font-heading font-semibold text-foreground">Información Personal</span>
+                    </div>
+                    <div className="space-y-1 text-sm font-body text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-3 w-3" />
+                        {user.email}
+                      </div>
+                      {user.cedula && (
+                        <div className="flex items-center gap-2">
+                          <IdCard className="h-3 w-3" />
+                          Cédula: {user.cedula}
+                        </div>
+                      )}
+                      {user.esMenor && user.cedulaRepresentante && (
+                        <div className="flex items-center gap-2">
+                          <IdCard className="h-3 w-3" />
+                          Representante: {user.cedulaRepresentante}
+                        </div>
+                      )}
+                      {user.telefono && (
+                        <div>Teléfono: {user.telefono}</div>
+                      )}
                     </div>
                   </div>
-                )}
+
+                  {user.role === 'estudiante' && user.instrumento && (
+                    <div className="p-4 rounded-lg bg-background border border-accent">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Music2 className="h-4 w-4 text-primary" />
+                        <span className="font-heading font-semibold text-foreground">Información Académica</span>
+                      </div>
+                      <div className="space-y-1 text-sm font-body text-muted-foreground">
+                        <div>Instrumento: {user.instrumento}</div>
+                        <div>Nivel: {user.nivel}</div>
+                        <div>Horario: {user.horario}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
