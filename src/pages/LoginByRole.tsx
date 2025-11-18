@@ -1,22 +1,35 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Music2, AlertCircle } from 'lucide-react';
+import { Music2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const Login = () => {
+const LoginByRole = () => {
   const navigate = useNavigate();
+  const { role } = useParams<{ role: UserRole }>();
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
+  const [cedula, setCedula] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('estudiante');
+  const [professorId, setProfessorId] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const getRoleTitle = () => {
+    switch (role) {
+      case 'estudiante':
+        return 'Estudiante';
+      case 'profesor':
+        return 'Profesor';
+      case 'admin':
+        return 'Administrador';
+      default:
+        return 'Usuario';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,17 +37,11 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
-      // Verificar que el rol del usuario coincida con el rol seleccionado
-      const storedUser = localStorage.getItem('conservatorio_user');
-      if (storedUser) {
-        const user = JSON.parse(storedUser);
-        if (user.role !== selectedRole) {
-          setError(`El usuario no tiene el rol de ${selectedRole}`);
-          setLoading(false);
-          return;
-        }
+      if (!role) {
+        throw new Error('Tipo de usuario no especificado');
       }
+
+      await login(cedula, password, role, professorId || undefined);
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
@@ -63,10 +70,10 @@ const Login = () => {
         <Card className="border-2 border-accent shadow-[var(--shadow-elegant)]">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-heading text-center">
-              Iniciar Sesión
+              Iniciar Sesión - {getRoleTitle()}
             </CardTitle>
             <CardDescription className="text-center font-body">
-              Ingresa tus credenciales para acceder al portal
+              Ingresa tu cédula y contraseña
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -79,15 +86,15 @@ const Login = () => {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="font-heading">
-                  Correo Electrónico
+                <Label htmlFor="cedula" className="font-heading">
+                  Cédula de Identidad
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="tu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="cedula"
+                  type="text"
+                  placeholder="12345678"
+                  value={cedula}
+                  onChange={(e) => setCedula(e.target.value)}
                   required
                   className="font-body"
                 />
@@ -108,41 +115,57 @@ const Login = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="role" className="font-heading">
-                  Tipo de Usuario
-                </Label>
-                <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as UserRole)}>
-                  <SelectTrigger className="font-body">
-                    <SelectValue placeholder="Selecciona tu rol" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="estudiante">Estudiante</SelectItem>
-                    <SelectItem value="profesor">Profesor</SelectItem>
-                    <SelectItem value="admin">Administrador</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {(role === 'profesor' || role === 'admin') && (
+                <div className="space-y-2">
+                  <Label htmlFor="professorId" className="font-heading">
+                    ID de {role === 'profesor' ? 'Profesor' : 'Administrador'}
+                  </Label>
+                  <Input
+                    id="professorId"
+                    type="text"
+                    placeholder={`Ej: ${role === 'profesor' ? 'PROF' : 'ADM'}-12345`}
+                    value={professorId}
+                    onChange={(e) => setProfessorId(e.target.value)}
+                    required
+                    className="font-body"
+                  />
+                </div>
+              )}
 
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity font-heading"
                 disabled={loading}
               >
-                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                {loading ? 'Iniciando sesión...' : `Iniciar Sesión como ${getRoleTitle()}`}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm font-body text-muted-foreground">
-                ¿No tienes cuenta?{' '}
-                <Link
-                  to="/registro"
-                  className="text-primary hover:text-secondary font-medium underline underline-offset-4 transition-colors"
+            <div className="mt-6 space-y-4">
+              {role === 'estudiante' && (
+                <div className="text-center">
+                  <p className="text-sm font-body text-muted-foreground">
+                    ¿No tienes cuenta?{' '}
+                    <Link
+                      to="/registro/estudiante"
+                      className="text-primary hover:text-secondary font-medium underline underline-offset-4 transition-colors"
+                    >
+                      Regístrate aquí
+                    </Link>
+                  </p>
+                </div>
+              )}
+              
+              <div className="text-center">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/seleccion-modo')}
+                  className="text-muted-foreground hover:text-foreground font-body"
                 >
-                  Regístrate aquí
-                </Link>
-              </p>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Volver a selección de modo
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -156,4 +179,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginByRole;

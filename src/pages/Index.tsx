@@ -115,10 +115,10 @@ const Index = () => {
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center space-x-3">
               <Button variant="outline" asChild>
-                <Link to="/login">Iniciar Sesión</Link>
+                <Link to="/seleccion-modo">Iniciar Sesión</Link>
               </Button>
               <Button asChild>
-                <Link to="/registro">Registrarse</Link>
+                <Link to="/seleccion-modo">Registrarse</Link>
               </Button>
             </div>
 
@@ -155,10 +155,10 @@ const Index = () => {
                 </button>
                 <div className="pt-3 space-y-2">
                   <Button variant="outline" asChild className="w-full">
-                    <Link to="/login">Iniciar Sesión</Link>
+                    <Link to="/seleccion-modo">Iniciar Sesión</Link>
                   </Button>
                   <Button asChild className="w-full">
-                    <Link to="/registro">Registrarse</Link>
+                    <Link to="/seleccion-modo">Registrarse</Link>
                   </Button>
                 </div>
               </nav>
