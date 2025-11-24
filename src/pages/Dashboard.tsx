@@ -10,13 +10,13 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
 
   if (!user) {
-    navigate('/seleccion-modo');
+    navigate('/');
     return null;
   }
 
   const handleLogout = () => {
     logout();
-    navigate('/seleccion-modo');
+    navigate('/');
   };
 
   const getRoleDisplay = (role: string) => {
@@ -76,7 +76,7 @@ const Dashboard = () => {
                 <CardTitle className="text-3xl font-display">
                   Bienvenido {roleDisplay.label}, {user.name}
                 </CardTitle>
-                <CardDescription className="text-base font-body space-y-1">
+                <div className="text-base font-body space-y-1">
                   {user.esMenor && user.cedulaRepresentante && (
                     <div>Representante: Cédula {user.cedulaRepresentante}</div>
                   )}
@@ -86,7 +86,7 @@ const Dashboard = () => {
                   {user.professorId && (
                     <div>ID: {user.professorId}</div>
                   )}
-                </CardDescription>
+                </div>
               </div>
                 <Badge className={`${roleDisplay.color} text-white font-heading px-4 py-2 text-sm`}>
                   {roleDisplay.label}

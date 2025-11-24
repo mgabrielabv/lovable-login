@@ -57,7 +57,7 @@ const ModeSelection = () => {
             </CardHeader>
             <CardContent className="space-y-3 relative">
               <Button
-                onClick={() => navigate('/login/estudiante')}
+                onClick={() => navigate('/login')}
                 className="w-full bg-gradient-to-r from-primary via-secondary to-primary hover:shadow-glow transition-all duration-300 font-heading text-base h-12 bg-[length:200%_100%] hover:bg-[position:100%_0] group/btn"
               >
                 <span className="relative z-10">Iniciar Sesión</span>
@@ -93,7 +93,7 @@ const ModeSelection = () => {
             </CardHeader>
             <CardContent className="space-y-3 relative">
               <Button
-                onClick={() => navigate('/login/profesor')}
+                onClick={() => navigate('/login')}
                 className="w-full bg-gradient-to-r from-primary via-secondary to-primary hover:shadow-glow transition-all duration-300 font-heading text-base h-12 bg-[length:200%_100%] hover:bg-[position:100%_0] group/btn"
               >
                 <span className="relative z-10">Iniciar Sesión</span>
@@ -125,7 +125,7 @@ const ModeSelection = () => {
             </CardHeader>
             <CardContent className="space-y-3 relative">
               <Button
-                onClick={() => navigate('/login/admin')}
+                onClick={() => navigate('/login')}
                 className="w-full bg-gradient-to-r from-primary via-secondary to-primary hover:shadow-glow transition-all duration-300 font-heading text-base h-12 bg-[length:200%_100%] hover:bg-[position:100%_0] group/btn"
               >
                 <span className="relative z-10">Iniciar Sesión</span>

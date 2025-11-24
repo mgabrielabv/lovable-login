@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,7 +9,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Conservatorio José Luis Paz - Design System */
+    /* Conservatorio José Luis Paz - Design System (HSL values to keep app-wide theming stable) */
     --background: 43 57% 88%;  /* #f5e9ce beige claro */
     --foreground: 292 100% 20%;  /* #5d0067 púrpura oscuro */
 
@@ -59,33 +60,18 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 292 100% 12%;
-    --foreground: 43 57% 88%;
-
-    --card: 292 100% 15%;
-    --card-foreground: 43 57% 88%;
-
-    --popover: 292 100% 15%;
-    --popover-foreground: 43 57% 88%;
-
-    --primary: 256 50% 82%;
-    --primary-foreground: 292 100% 20%;
-
-    --secondary: 284 68% 24%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 292 50% 20%;
-    --muted-foreground: 256 50% 70%;
-
-    --accent: 284 100% 81%;
-    --accent-foreground: 292 100% 20%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 284 68% 24%;
-    --input: 292 50% 20%;
-    --ring: 256 50% 82%;
+    /* Dark mode fallback uses the brand colors but darker */
+    --background: #0f172a;
+    --card: #111827;
+    --card-foreground: #e6e6e6;
+    --primary: #c8bfe7;
+    --secondary: #5d0067;
+    --muted: #0b1220;
+    --muted-foreground: #c8bfe7;
+    --accent: #df9bff;
+    --border: #222236;
+    --input: #111827;
+    --ring: #c8bfe7;
   }
 }
 
@@ -153,4 +139,88 @@ All colors MUST be HSL.
   .shadow-hover {
     box-shadow: var(--shadow-hover);
   }
+
+  /* Elegant serif for headings and the login form */
+  .font-elegant {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+/* Hide native password reveal/clear UI so our custom eye button is the only control */
+@layer utilities {
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+  }
+
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none;
+  }
+
+  /* WebKit/Blink engines: attempt to hide built-in decorations */
+  input[type="password"]::-webkit-textfield-decoration,
+  input[type="password"]::-webkit-textfield-decoration-container,
+  input[type="password"]::-webkit-password-toggle-button {
+    display: none !important;
+  }
+}
+
+/* Brand typography helpers (sizes are approximations from provided specs) */
+.brand-title {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-weight: 700;
+  font-size: 50px;
+  line-height: 1.05;
+  color: var(--primary);
+  letter-spacing: -1px;
+}
+
+@media (min-width: 1024px) {
+  .brand-title { font-size: 90px; letter-spacing: -2px; }
+}
+
+.brand-subtitle {
+  font-family: 'Agrandir', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 1.35;
+  color: white;
+}
+
+.brand-paragraph {
+  font-family: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(17,24,39,0.85);
+}
+
+.brand-accent {
+  font-family: 'High Cruiser', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  color: var(--accent);
+}
+
+/* Utility for brand button gradient */
+.btn-brand-gradient {
+  background: linear-gradient(90deg, var(--accent), var(--primary));
+  color: var(--primary-foreground);
+  box-shadow: 0 8px 20px rgba(93,0,103,0.18);
+  transition: transform 200ms ease, box-shadow 200ms ease, opacity 150ms ease;
+}
+
+.btn-brand-gradient:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 12px 28px rgba(93,0,103,0.22); }
+
+/* Input shadow and rounded styling */
+.shadow-input {
+  box-shadow: 0 6px 18px rgba(17,24,39,0.06);
+  border-radius: 9999px;
+}
+
+.input-left-icon { padding-left: 2.6rem; }
+.input-right-icon { padding-right: 2.6rem; }
+
+/* Ensure button text becomes white on hover for better contrast */
+.btn-brand-gradient:hover,
+.btn-brand-gradient:focus {
+  color: #fff !important;
 }

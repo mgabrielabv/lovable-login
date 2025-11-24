@@ -522,7 +522,7 @@ const RegisterStudent = () => {
                 <p className="text-sm font-body text-muted-foreground">
                   ¿Ya tienes cuenta?{' '}
                   <Link
-                    to="/login/estudiante"
+                    to="/login"
                     className="text-primary hover:text-secondary font-medium underline underline-offset-4 transition-colors"
                   >
                     Inicia sesión aquí
