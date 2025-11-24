@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Music2, AlertCircle, Eye, EyeOff, ArrowRight, IdCard, Key } from 'lucide-react';
+import { Music2, AlertCircle, Eye, EyeOff, ArrowRight, ArrowLeft, IdCard, Key } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type Candidate = { id: string; name: string; role: string; professorId?: string };
@@ -89,6 +89,12 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(135deg, #5d0067, rgb(242, 238, 255))' }}>
       <div className="w-full max-w-4xl">
+        <div className="mb-4">
+          <button type="button" onClick={() => navigate('/')} className="btn-hero-contrast inline-flex items-center px-3 py-1.5 rounded-full text-sm">
+            <ArrowLeft className="mr-2 w-4 h-4" />
+            Volver al inicio
+          </button>
+        </div>
         <div className="flex items-center justify-center mb-6">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full shadow-xl ring-1 ring-white/10" style={{background: '#fff8e2'}}>
             <Music2 className="w-10 h-10 text-[#5d0067]" />
@@ -147,9 +153,9 @@ const Login: React.FC = () => {
                       <Label htmlFor="profesorId">ID Profesor (si corresponde)</Label>
                       <Input id="profesorId" value={professorId} onChange={e => setProfessorId(e.target.value)} placeholder="ID Profesor" className="mt-1 shadow-input" disabled={loading} />
                       <div className="flex justify-end mt-3">
-                        <Button onClick={() => proceedLogin(selectedRole)} disabled={loading} className="flex items-center btn-brand-gradient">
-                          {loading ? 'Ingresando...' : 'Ingresar'}
-                          <ArrowRight className="ml-2 w-4 h-4" />
+                        <Button onClick={() => proceedLogin(selectedRole)} disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
+                          <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
+                          <ArrowRight className="ml-3 w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -158,10 +164,10 @@ const Login: React.FC = () => {
                   {(!selectedRole && candidates.length <= 1) && (
                     <div className="flex justify-between items-center">
                       <div className="text-sm text-slate-500">¿No tienes cuenta? <Link to="/registro/estudiante" className="text-primary underline">Regístrate</Link></div>
-                      <Button type="submit" disabled={loading} className="flex items-center btn-brand-gradient">
-                        {loading ? 'Ingresando...' : 'Ingresar'}
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Button>
+                        <Button type="submit" disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
+                          <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
+                          <ArrowRight className="ml-3 w-4 h-4" />
+                        </Button>
                     </div>
                   )}
                 </form>

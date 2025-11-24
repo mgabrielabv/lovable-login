@@ -170,6 +170,12 @@ const RegisterStudent = () => {
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float" />
       
       <div className="w-full max-w-lg relative z-10">
+        <div className="mb-4">
+          <Button type="button" onClick={() => navigate('/')} className="btn-brand-gradient inline-flex items-center px-3 py-1.5 rounded-full text-sm">
+            <ArrowLeft className="mr-2 w-4 h-4" />
+            Volver al inicio
+          </Button>
+        </div>
         {/* Logo and Title */}
         <div className="text-center mb-10 animate-fade-in">
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary via-secondary to-lavender mb-6 shadow-glow animate-float">
