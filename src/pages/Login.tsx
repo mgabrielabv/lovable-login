@@ -38,10 +38,29 @@ const Login: React.FC = () => {
 
   const findCandidates = () => {
     clearError();
+    // keep previous behavior: clear any ephemeral role options
+    // (no separate tab flow)
     const stored = localStorage.getItem('conservatorio_users');
     let users: any[] = [];
     if (stored) {
-      try { users = JSON.parse(stored); } catch (e) { setError('Error interno: datos de usuarios corruptos.'); return []; }
+      try {
+        users = JSON.parse(stored);
+      } catch (e) {
+        // If stored data is corrupted (not valid JSON), attempt an automatic repair by
+        // restoring a small set of demo users so the app remains usable in dev.
+        const demo = [
+          { id: '1', name: 'Profesor Álvarez', email: 'prof.alvarez@conservatorio.local', role: 'profesor', cedula: '123456', password: 'secret', professorId: 'PROF-001' },
+          { id: '2', name: 'Estudiante Demo', email: 'est.demo@conservatorio.local', role: 'estudiante', cedula: '654321', password: 'secret' }
+        ];
+        try {
+          localStorage.setItem('conservatorio_users', JSON.stringify(demo));
+          users = demo;
+          showNotice('Datos de usuarios reparados (demo) — usa 123456/secret o 654321/secret');
+        } catch (e2) {
+          setError('Error interno: no se pudo reparar datos de usuarios.');
+          return [];
+        }
+      }
     }
     const matches = users.filter((u: any) => u.cedula === cedula && u.password === password);
     if (matches.length === 0) { setError('Credenciales inválidas'); return []; }
@@ -58,17 +77,37 @@ const Login: React.FC = () => {
     }
 
     const found = findCandidates();
+    // If the user is registered both as estudiante and profesor, show role selection screen
+    const hasStudent = found.some(f => f.role === 'estudiante');
+    const hasProfesor = found.some(f => f.role === 'profesor');
+    if (hasStudent && hasProfesor) {
+      // Pass credentials along so the RoleSelection screen can complete the login
+      navigate('/role-selection', { state: { candidates: found, cedula, password } });
+      return;
+    }
     if (found.length === 1) {
       const only = found[0];
+      // If the found user is a professor or admin, restore inline flow: set selected role
+      // and, if professorId exists, proceed immediately; otherwise show professorId input.
       if (only.role === 'profesor' || only.role === 'admin') {
         setSelectedRole(only.role);
         setProfessorId(only.professorId || '');
-        if (only.professorId) proceedLogin(only.role);
+        // if we already have a stored professorId, proceed immediately
+        if (only.professorId) {
+          proceedLogin(only.role);
+          return;
+        }
+        // keep candidate stored for later (will show professorId input)
+        setCandidates([only]);
         return;
       }
+
+      // default: single non-ambiguous role -> proceed
       proceedLogin(only.role);
     }
   };
+
+  
 
   const proceedLogin = async (role: string) => {
     clearError();
@@ -153,7 +192,7 @@ const Login: React.FC = () => {
                       <Label htmlFor="profesorId">ID Profesor (si corresponde)</Label>
                       <Input id="profesorId" value={professorId} onChange={e => setProfessorId(e.target.value)} placeholder="ID Profesor" className="mt-1 shadow-input" disabled={loading} />
                       <div className="flex justify-end mt-3">
-                        <Button onClick={() => proceedLogin(selectedRole)} disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
+                        <Button onClick={() => proceedLogin(selectedRole as string)} disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
                           <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
                           <ArrowRight className="ml-3 w-4 h-4" />
                         </Button>
@@ -173,13 +212,14 @@ const Login: React.FC = () => {
                 </form>
               </CardContent>
             </div>
-
             <div className="hidden md:flex flex-col justify-center p-8 border-0" style={{background: 'linear-gradient(135deg, #5d0067, #4b1669)'}}>
               <h3 className="brand-subtitle mb-2 text-white">Bienvenido al Conservatorio</h3>
               <p className="text-white">Accede a tus clases, horarios y material pedagógico. Si necesitas ayuda, contacta con administración.</p>
             </div>
           </div>
         </Card>
+
+        
 
         {notice && <div role="status" aria-live="polite" className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white/95 px-4 py-2 rounded-full shadow-md">{notice}</div>}
 

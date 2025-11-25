@@ -13,6 +13,8 @@ import Login from "./pages/Login";
 import RegisterStudent from "./pages/RegisterStudent";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import RoleSelection from "./pages/RoleSelection";
+import TeacherDashboard from "./pages/TeacherDashboard";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,8 @@ const App = () => (
         <RouterProvider router={createBrowserRouter([
           { path: '/', element: <Index /> },
           { path: '/seleccion-modo', element: <ModeSelection /> },
+          { path: '/role-selection', element: <RoleSelection /> },
+          { path: '/teacher/dashboard', element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
           { path: '/login/:role', element: <LoginByRole /> },
           { path: '/login', element: <Login /> },
           { path: '/registro/estudiante', element: <RegisterStudent /> },
