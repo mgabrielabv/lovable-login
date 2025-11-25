@@ -6,6 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Music, Heart, Target, Users, GraduationCap, Piano, Mic2, BookOpen, Calendar, MapPin, Mail, Phone, Facebook, Instagram, Youtube, Menu, X } from "lucide-react";
 import heroImage from "@/assets/hero-music.jpg";
+import Carousel3D from "@/components/Carousel3D";
+import MusicalNotesRain from "@/components/MusicalNotesRain";
+import foto from "./assets/foto.jpg";
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -86,7 +89,6 @@ const Index = () => {
             <div className="flex items-center space-x-3">
               <Music className="h-8 w-8 text-primary" />
               <span className="font-display text-2xl font-bold text-primary">
-                José Luis Paz
               </span>
             </div>
 
@@ -104,6 +106,9 @@ const Index = () => {
               <button onClick={() => scrollToSection("areas")} className="font-heading text-sm font-medium hover:text-primary transition-colors">
                 Áreas
               </button>
+              <button onClick={() => scrollToSection("pensum")} className="font-heading text-sm font-medium hover:text-primary transition-colors">
+                Pensum
+              </button>
               <button onClick={() => scrollToSection("eventos")} className="font-heading text-sm font-medium hover:text-primary transition-colors">
                 Eventos
               </button>
@@ -118,7 +123,6 @@ const Index = () => {
                 <Link to="/login">Iniciar Sesión</Link>
               </Button>
               <Button asChild>
-                <Link to="/seleccion-modo">Registrarse</Link>
               </Button>
             </div>
 
@@ -147,18 +151,21 @@ const Index = () => {
                 <button onClick={() => scrollToSection("areas")} className="font-heading text-sm font-medium hover:text-primary transition-colors text-left">
                   Áreas
                 </button>
+                <button onClick={() => scrollToSection("pensum")} className="font-heading text-sm font-medium hover:text-primary transition-colors text-left">
+                  Pensum
+                </button>
                 <button onClick={() => scrollToSection("eventos")} className="font-heading text-sm font-medium hover:text-primary transition-colors text-left">
                   Eventos
                 </button>
                 <button onClick={() => scrollToSection("contacto")} className="font-heading text-sm font-medium hover:text-primary transition-colors text-left">
                   Contacto
                 </button>
+                
                 <div className="pt-3 space-y-2">
                   <Button variant="outline" asChild className="w-full">
                     <Link to="/login">Iniciar Sesión</Link>
                   </Button>
                   <Button asChild className="w-full">
-                    <Link to="/seleccion-modo">Registrarse</Link>
                   </Button>
                 </div>
               </nav>
@@ -191,6 +198,12 @@ const Index = () => {
           </Button>
         </div>
       </section>
+
+      {/* Carrusel 3D */}
+      <Carousel3D />
+
+      {/* Lluvia de notas musicales */}
+      <MusicalNotesRain />
 
       {/* Sobre Nosotros Section */}
       <section id="sobre-nosotros" className="py-20 bg-muted/30">
@@ -242,6 +255,7 @@ const Index = () => {
         </div>
       </section>
 
+      
       {/* Valores Section */}
       <section id="valores" className="py-20">
         <div className="container mx-auto px-4">
