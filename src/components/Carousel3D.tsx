@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import movie1 from 'src/assets/foto1.jpg';
-import movie2 from 'src/assets/foto2.jpg';
-import movie3 from 'src/assets/foto3.jpg';
-import movie4 from 'src/assets/foto4.jpg';
+import movie1 from '@/assets/foto1.jpg';
+import movie2 from '@/assets/foto2.jpg';
+import movie3 from '@/assets/foto3.jpg';
+import movie4 from '@/assets/foto4.jpg';
 
 interface Foto{
   id: number;
@@ -11,10 +11,10 @@ interface Foto{
 }
 
 const fotos: Foto[] = [
-  { id: 1, title: "El aplauso es el eco del esfuerzo", image: "src/assets/foto1.jpg" },
-  { id: 2, title: "Una sola voz es perfecta sintonía", image: "src/assets/foto2.jpg" },
-  { id: 3, title: "El origen de cada melodía", image: "src/assets/foto3.jpg" },
-  { id: 4, title: "La armonía se construye en equipo", image: "src/assets/foto4.jpg" },
+  { id: 1, title: "El aplauso es el eco del esfuerzo", image: movie1 },
+  { id: 2, title: "Una sola voz es perfecta sintonía", image: movie2 },
+  { id: 3, title: "El origen de cada melodía", image: movie3 },
+  { id: 4, title: "La armonía se construye en equipo", image: movie4 },
 ];
 
 export default function Carousel3D() {
