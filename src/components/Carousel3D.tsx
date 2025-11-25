@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import movie1 from 'src/assets/foto1.jpg';
+import movie2 from 'src/assets/foto2.jpg';
+import movie3 from 'src/assets/foto3.jpg';
+import movie4 from 'src/assets/foto4.jpg';
 
 interface Foto{
   id: number;
