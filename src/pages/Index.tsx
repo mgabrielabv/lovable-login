@@ -205,8 +205,9 @@ const Index = () => {
       {/* Lluvia de notas musicales */}
       <MusicalNotesRain />
 
+
       {/* Sobre Nosotros Section */}
-      <section id="sobre-nosotros" className="py-20 bg-muted/30">
+      <section id="sobre-nosotros" className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="font-display text-4xl md:text-5xl font-bold text-center mb-4 text-primary">
             Sobre Nosotros
