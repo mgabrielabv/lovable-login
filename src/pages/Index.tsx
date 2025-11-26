@@ -8,11 +8,14 @@ import { Music, Heart, Target, Users, GraduationCap, Piano, Mic2, BookOpen, Cale
 import heroImage from "@/assets/hero-music.jpg";
 import Carousel3D from "@/components/Carousel3D";
 import MusicalNotesRain from "@/components/MusicalNotesRain";
-import foto from "./assets/foto.jpg";
+import logo from '@/assets/logo.jpg';
+import foto from "@/assets/foto.jpg";
+import pensumImage from '@/assets/pensum.jpg';
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const [showPensum, setShowPensum] = useState(false);
 
   const values = [
     {
@@ -87,9 +90,7 @@ const Index = () => {
           <div className="flex h-20 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <Music className="h-8 w-8 text-primary" />
-              <span className="font-display text-2xl font-bold text-primary">
-              </span>
+              <img src={logo} alt="Logo Conservatorio" className="h-8 w-8" />
             </div>
 
             {/* Desktop Navigation */}
@@ -106,7 +107,7 @@ const Index = () => {
               <button onClick={() => scrollToSection("areas")} className="font-heading text-sm font-medium hover:text-primary transition-colors">
                 Áreas
               </button>
-              <button onClick={() => scrollToSection("pensum")} className="font-heading text-sm font-medium hover:text-primary transition-colors">
+              <button onClick={() => setShowPensum(true)} className="font-heading text-sm font-medium hover:text-primary transition-colors">
                 Pensum
               </button>
               <button onClick={() => scrollToSection("eventos")} className="font-heading text-sm font-medium hover:text-primary transition-colors">
@@ -216,38 +217,42 @@ const Index = () => {
             Una institución dedicada a la excelencia musical y la formación integral de artistas
           </p>
           
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="flex flex-col gap-6 max-w-6xl mx-auto">
+            {/* Misión y Visión en una fila */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="bg-muted hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <CardHeader>
+                  <CardTitle className="font-heading text-2xl text-primary">Misión</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="font-body text-base leading-relaxed">
+                    Formar músicos integrales con excelencia técnica, sensibilidad artística y compromiso social, 
+                    promoviendo el desarrollo cultural de nuestra comunidad a través de la educación musical de calidad.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-accent/20 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <CardHeader>
+                  <CardTitle className="font-heading text-2xl text-primary">Visión</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="font-body text-base leading-relaxed">
+                    Ser el conservatorio de música líder en la región, reconocido por la excelencia académica, 
+                    la innovación pedagógica y la formación de músicos profesionales que contribuyan al desarrollo cultural del país.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Historia */}
             <Card className="bg-muted hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardHeader>
-                <CardTitle className="font-heading text-2xl text-primary">Misión</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="font-body text-base leading-relaxed">
-                  Formar músicos integrales con excelencia técnica, sensibilidad artística y compromiso social, 
-                  promoviendo el desarrollo cultural de nuestra comunidad a través de la educación musical de calidad.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-accent/20 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardHeader>
-                <CardTitle className="font-heading text-2xl text-primary">Visión</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="font-body text-base leading-relaxed">
-                  Ser el conservatorio de música líder en la región, reconocido por la excelencia académica, 
-                  la innovación pedagógica y la formación de músicos profesionales que contribuyan al desarrollo cultural del país.
-                </CardDescription>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <CardHeader>
                 <CardTitle className="font-heading text-2xl text-primary">Historia</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="font-body text-base leading-relaxed">
-                  Fundado en 1985, el Conservatorio José Luis Paz ha formado a generaciones de músicos destacados. 
+                  "Fundado en 1985, el Conservatorio José Luis Paz ha formado a generaciones de músicos destacados. 
                   Con casi 40 años de trayectoria, somos un referente en educación musical de excelencia.
                 </CardDescription>
               </CardContent>
@@ -256,6 +261,32 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Modal para el Pensum */}
+      {showPensum && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-7xl max-h-[90vh] overflow-y-auto p-6">
+            {/* Título */}
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4 text-center">
+              SISTEMA DE RELACIONES DEL PLAN DE ESTUDIO DE LA INSTITUCIÓN
+            </h2>
+
+            {/* Imagen del pensum */}
+            <div className="flex justify-center">
+              <img src={pensumImage} alt="Pensum" className="max-w-full h-auto rounded-lg" />
+            </div>
+
+            {/* Botón para cerrar */}
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => setShowPensum(false)}
+                className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-primary/90"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Valores Section */}
       <section id="valores" className="py-20">
