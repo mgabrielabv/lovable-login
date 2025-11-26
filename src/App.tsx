@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import RoleSelection from "./pages/RoleSelection";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
           { path: '/seleccion-modo', element: <ModeSelection /> },
           { path: '/role-selection', element: <RoleSelection /> },
           { path: '/teacher/dashboard', element: <ProtectedRoute><TeacherDashboard /></ProtectedRoute> },
+          { path: '/student/dashboard', element: <ProtectedRoute><StudentDashboard /></ProtectedRoute> },
           { path: '/login/:role', element: <LoginByRole /> },
           { path: '/login', element: <Login /> },
           { path: '/registro/estudiante', element: <RegisterStudent /> },

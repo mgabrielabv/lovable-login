@@ -32,7 +32,7 @@ const RoleSelection: React.FC = () => {
         if (role === 'profesor') {
           navigate('/teacher/dashboard', { state: { name: chosen?.name } });
         } else {
-          navigate('/dashboard');
+          navigate('/student/dashboard');
         }
         return;
       } catch (err: any) {
@@ -46,7 +46,7 @@ const RoleSelection: React.FC = () => {
     if (role === 'profesor') {
       navigate('/teacher/dashboard', { state: { role } });
     } else {
-      navigate('/dashboard', { state: { role } });
+      navigate('/student/dashboard', { state: { role } });
     }
   };
 
