@@ -10,7 +10,7 @@ import Carousel3D from "@/components/Carousel3D";
 import MusicalNotesRain from "@/components/MusicalNotesRain";
 import logo from '@/assets/logo.jpg';
 import foto from "@/assets/foto.jpg";
-import pensumImage from '@/assets/pensum.jpg';
+import pensumImage from '../assets/pensum.jpg';
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
