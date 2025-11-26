@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, BarChart2, FileText, CreditCard, DollarSign, BookOpen, User, Music2, LogOut } from 'lucide-react';
+import { Calendar, BarChart2, FileText, BookOpen, User, Music2, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const features = [
@@ -10,8 +10,6 @@ const features = [
   { key: 'rendimiento', title: 'Rendimiento Académico', desc: 'Visualiza el progreso de tus cortes de notas', icon: <BarChart2 /> },
   { key: 'registro-notas', title: 'Registro de Notas', desc: 'Consulta tus calificaciones finales', icon: <FileText /> },
   { key: 'inscripcion', title: 'Gestión de Inscripción', desc: 'Inscríbete en nuevos cursos y asignaturas', icon: <BookOpen /> },
-  { key: 'estado-cuenta', title: 'Estado de Cuenta', desc: 'Revisa tus pagos pendientes y saldo', icon: <DollarSign /> },
-  { key: 'pagos', title: 'Opciones de Pago', desc: 'Realiza pagos de matrícula y otros servicios', icon: <CreditCard /> },
   { key: 'biblioteca', title: 'Biblioteca Digital', desc: 'Accede a recursos y materiales de estudio', icon: <BookOpen /> },
   { key: 'actualizar', title: 'Actualizar Información', desc: 'Modifica tus datos personales y de contacto', icon: <User /> }
 ];
