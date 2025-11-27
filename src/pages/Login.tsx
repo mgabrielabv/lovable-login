@@ -116,7 +116,14 @@ const Login: React.FC = () => {
     try {
       // @ts-ignore
       await login(cedula, password, role as any, professorId || undefined);
-      navigate('/dashboard');
+      // Redirect by role: estudiantes → student dashboard, profesores → teacher dashboard
+      if (role === 'estudiante') {
+        navigate('/student/dashboard');
+      } else if (role === 'profesor') {
+        navigate('/teacher/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       setError(err?.message || String(err));
       console.error('Login error', err);
