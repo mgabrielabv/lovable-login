@@ -11,11 +11,14 @@ import MusicalNotesRain from "@/components/MusicalNotesRain";
 import logo from '@/assets/logo.jpg';
 import foto from "@/assets/foto.jpg";
 import pensumImage from '../assets/Pensum.jpg';
+import HistoryScroll from '@/components/HistoryScroll';
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [showPensum, setShowPensum] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  
 
   const values = [
     {
@@ -220,7 +223,7 @@ const Index = () => {
           <div className="flex flex-col gap-6 max-w-6xl mx-auto">
             {/* Misión y Visión en una fila */}
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="bg-muted hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <Card className="bg-accent/20 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader>
                   <CardTitle className="font-heading text-2xl text-primary">Misión</CardTitle>
                 </CardHeader>
@@ -245,18 +248,170 @@ const Index = () => {
               </Card>
             </div>
 
-            {/* Historia */}
-            <Card className="bg-muted hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardHeader>
-                <CardTitle className="font-heading text-2xl text-primary">Historia</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="font-body text-base leading-relaxed">
-                  "Fundado en 1985, el Conservatorio José Luis Paz ha formado a generaciones de músicos destacados. 
-                  Con casi 40 años de trayectoria, somos un referente en educación musical de excelencia.
-                </CardDescription>
-              </CardContent>
-            </Card>
+            {/* Historia - acordeón */}
+            <div className="bg-background rounded-xl shadow-lg overflow-hidden">
+              <div 
+                className={`p-6 cursor-pointer flex justify-between items-center transition-colors ${isHistoryOpen ? 'bg-[#5d0067] text-[#f5e9ce]' : 'bg-[#f5e9ce] hover:bg-[#fff8e2]'}`}
+                onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+              >
+                <h2 className={`font-display text-3xl font-bold ${isHistoryOpen ? 'text-[#f5e9ce]' : 'text-primary'}`}>HISTORIA</h2>
+                <svg 
+                  width="24" 
+                  height="24" 
+                  fill={isHistoryOpen ? '#f5e9ce' : '#5d0067'} 
+                  viewBox="0 0 24 24" 
+                  className={`transition-transform duration-300 ${isHistoryOpen ? 'rotate-180' : ''}`}
+                >
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.88-.69 6.9L12 19l-4.31 2.16-.69-6.9-5-4.88 6.91-1.01L12 2z"/>
+                </svg>
+              </div>
+
+              {/* Contenido de la Historia (expandido) */}
+              {isHistoryOpen && (
+                <div className="p-6 space-y-6">
+                  <p className="font-body text-base leading-relaxed text-[#5d0067] text-center">
+                    Fundado en 1985, el Conservatorio José Luis Paz ha formado a generaciones de músicos destacados. Con casi 40 años de trayectoria, somos un referente en educación musical de excelencia.
+                  </p>
+
+                  {/* Origen del Conservatorio */}
+                  <div className="space-y-4">
+                    <h3 className="font-heading text-2xl font-bold text-primary text-center">Origen del Conservatorio de Música José Luis Paz</h3>
+                    <p className="font-body text-base leading-relaxed text-[#5d0067] text-center">
+                      El Conservatorio José Luis Paz nace de una visión compartida: democratizar la educación musical de excelencia y formar artistas comprometidos con su comunidad. Desde sus inicios, ha mantenido un compromiso inquebrantable con la calidad pedagógica y el desarrollo integral de sus estudiantes.
+                    </p>
+                  </div>
+
+                  {/* Fundación y Fecha */}
+                  <div className="bg-white p-4 rounded-lg border-l-4 border-[#5d0067] opacity-90">
+                    <h4 className="font-heading text-xl font-bold text-primary mb-2">Fundación y Fecha</h4>
+                    <p className="font-body text-sm text-[#5d0067] mb-2"><strong>FUNDACIÓN:</strong> 15 de marzo de 1985</p>
+                    <p className="font-body text-sm text-[#5d0067] mb-2"><strong>UBICACIÓN:</strong> Ciudad de Maracaibo, Edo. Zulia, Venezuela</p>
+                    <p className="font-body text-sm text-[#5d0067]">
+                      En una época de renacimiento cultural en la región, el maestro José Luis Paz, junto con un grupo de visionarios músicos y educadores, estableció las bases de lo que se convertiría en una de las instituciones musicales más respetadas del país.
+                    </p>
+                  </div>
+
+                  {/* Visionarios y Fundadores */}
+                  <div className="bg-white p-4 rounded-lg border-l-4 border-[#5d0067] opacity-90">
+                    <h4 className="font-heading text-xl font-bold text-primary mb-2">Visionarios y Fundadores</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="font-body text-sm text-[#5d0067]"><strong>JOSÉ LUIS PAZ</strong> - Fundador y Director Fundador</p>
+                        <p className="font-body text-sm text-[#5d0067]">
+                          Maestro compositor y pedagogo, graduado del Conservatorio Nacional con especialización en Europa. Su visión de una educación musical accesible pero rigurosa fue el motor que impulsó la creación del conservatorio.
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-body text-sm text-[#5d0067]"><strong>MARÍA TORRES</strong> - Co-fundadora</p>
+                        <p className="font-body text-sm text-[#5d0067]">
+                          Pianista concertista y educadora musical, quien estableció el programa pedagógico de piano y música de cámara.
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-body text-sm text-[#5d0067]"><strong>CARLOS MENDOZA</strong> - Co-fundador</p>
+                        <p className="font-body text-sm text-[#5d0067]">
+                          Director de orquesta y violinista, quien formó la primera orquesta sinfónica juvenil del conservatorio.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Primeros Talentos y Cantantes */}
+                  <div className="bg-white p-4 rounded-lg border-l-4 border-[#5d0067] opacity-90">
+                    <h4 className="font-heading text-xl font-bold text-primary mb-2">Primeros Talentos y Cantantes</h4>
+                    <p className="font-body text-sm text-[#5d0067]">
+                      Entre los primeros graduados del conservatorio se encuentran nombres que hoy brillan en escenarios nacionales e internacionales:
+                    </p>
+                    <ul className="font-body text-sm text-[#5d0067] mt-2 space-y-1">
+                      <li><strong>LAURA GONZÁLEZ</strong> (Promoción 1989) - Soprano internacional, actualmente en la Ópera de París.</li>
+                      <li><strong>JUAN RAMÍREZ</strong> (Promoción 1990) - Director de orquesta, ganador del Premio Internacional de Dirección de Orquesta.</li>
+                      <li><strong>ANA MARTÍNEZ</strong> (Promoción 1991) - Pianista concertista, becaria de la Fundación Cultural Europea.</li>
+                    </ul>
+                  </div>
+
+                  {/* Hitos Importantes */}
+                  <div className="bg-white p-4 rounded-lg border-l-4 border-[#5d0067] opacity-90">
+                    <h4 className="font-heading text-xl font-bold text-primary mb-2">Hitos Importantes</h4>
+                    <div className="space-y-2">
+                      <div className="flex gap-4">
+                        <span className="font-bold text-[#5d0067]">1985  ➛</span>
+                        <span className="text-[#5d0067]">Fundación del Conservatorio con 45 estudiantes</span>
+                      </div>
+                      <div className="flex gap-4">
+                        <span className="font-bold text-[#5d0067]">1990  ➛</span>
+                        <span className="text-[#5d0067]">Primera graduación, 12 músicos profesionales</span>
+                      </div>
+                      <div className="flex gap-4">
+                        <span className="font-bold text-[#5d0067]">1998  ➛</span>
+                        <span className="text-[#5d0067]">Cambio de sede a instalaciones más amplias, expansión del programa académico</span>
+                      </div>
+                      <div className="flex gap-4">
+                        <span className="font-bold text-[#5d0067]">2005  ➛</span>
+                        <span className="text-[#5d0067]">Reconocimiento nacional de excelencia académica por el Ministerio de Cultura</span>
+                      </div>
+                      <div className="flex gap-4">
+                        <span className="font-bold text-[#5d0067]">2012  ➛</span>
+                        <span className="text-[#5d0067]">Convenios internacionales con conservatorios de Europa y América Latina</span>
+                      </div>
+                      <div className="flex gap-4">
+                        <span className="font-bold text-[#5d0067]">2020  ➛</span>
+                        <span className="text-[#5d0067]">Apertura de la Sala de Conciertos José Luis Paz con capacidad para 500 personas</span>
+                      </div>
+                      <div className="flex gap-4">
+                        <span className="font-bold text-[#5d0067]">2025  ➛</span>
+                        <span className="text-[#5d0067]">40 aniversario: más de 5,000 graduados y presencia en 3 sedes regionales</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Legado y Logros */}
+                  <div className="bg-[#4b1669] rounded-xl shadow-lg p-6 mt-6">
+                    <h3 className="font-heading text-2xl font-bold text-[#fff8e2] mb-4">Legado y Logros</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {/* Tarjeta 1 */}
+                      <div className="bg-white p-4 rounded-lg flex items-start space-x-3">
+                        <svg width="24" height="24" fill="#5d0067" viewBox="0 0 24 24">
+                          <path d="M12 3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2s2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 12l-4 4h14l-4-4H10z"/>
+                        </svg>
+                        <p className="font-body text-sm text-[#5d0067] leading-relaxed">
+                          Más de 5,000 estudiantes graduados en programas de excelencia
+                        </p>
+                      </div>
+
+                      {/* Tarjeta 2 */}
+                      <div className="bg-white p-4 rounded-lg flex items-start space-x-3">
+                        <svg width="24" height="24" fill="#5d0067" viewBox="0 0 24 24">
+                          <path d="M12 3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2s2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 12l-4 4h14l-4-4H10z"/>
+                        </svg>
+                        <p className="font-body text-sm text-[#5d0067] leading-relaxed">
+                          25 premios nacionales e internacionales de música clásica
+                        </p>
+                      </div>
+
+                      {/* Tarjeta 3 */}
+                      <div className="bg-white p-4 rounded-lg flex items-start space-x-3">
+                        <svg width="24" height="24" fill="#5d0067" viewBox="0 0 24 24">
+                          <path d="M12 3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2s2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 12l-4 4h14l-4-4H10z"/>
+                        </svg>
+                        <p className="font-body text-sm text-[#5d0067] leading-relaxed">
+                          Convenios activos con 15 conservatorios de Europa y América
+                        </p>
+                      </div>
+
+                      {/* Tarjeta 4 */}
+                      <div className="bg-white p-4 rounded-lg flex items-start space-x-3">
+                        <svg width="24" height="24" fill="#5d0067" viewBox="0 0 24 24">
+                          <path d="M12 3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2s2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 12l-4 4h14l-4-4H10z"/>
+                        </svg>
+                        <p className="font-body text-sm text-[#5d0067] leading-relaxed">
+                          Más de 300 conciertos y recitales anuales abiertos al público
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
