@@ -1,118 +1,192 @@
+/* Dashboard theme — Diseño Premium con Espacio Máximo (Fondo Pálido) */
+
 .dashboard-theme {
-  /* Brand palette */
-  --bg-dark: #5d0067; /* principal oscuro */
-  --bg-mid: #4b1669;  /* tarjeta / mid */
-  --accent-dynamic: #df9bff; /* iconos / glow */
-  --accent-dynamic-2: #cfc3ff;
-  --accent-pale: #f5e9ce; /* solo texto/borde */
+  --bg-dark: #5d0067; /* Morado profundo para texto e íconos */
+  --bg-mid: #4b1669;  /* Morado secundario */
+  --accent-pale: #f5e9ce; /* Fondo pálido */
+  --accent-dynamic: #df9bff; /* Acento interactivo */
 
-  background: linear-gradient(180deg, rgba(45,4,58,1) 0%, var(--bg-dark) 30%, var(--bg-mid) 100%);
-  color: var(--accent-pale);
-  position: relative;
-}
-
-/* watermark subtle */
-.dashboard-theme::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url('../assets/logo.jpg');
-  background-repeat: no-repeat;
-  background-position: right center;
-  background-size: 28rem;
-  opacity: 0.03;
-  pointer-events: none;
-}
-
-/* Card overrides (scoped to dashboard theme) */
-.dashboard-theme .card-elevated {
-  /* cards sit slightly lighter than the page but still purple */
-  background: var(--bg-mid);
-  color: var(--accent-pale);
-  border-radius: 14px;
-  box-shadow: 0 20px 50px rgba(8,6,20,0.5), 0 2px 6px rgba(0,0,0,0.2);
-  border: 1px solid rgba(223,159,255,0.12); /* subtle accent border */
-}
-
-.dashboard-theme .card-elevated h3,
-.dashboard-theme .card-elevated .card-title {
-  color: var(--accent-pale);
-}
-
-.dashboard-theme .dashboard-icon {
-  color: var(--accent-dynamic) !important;
-  filter: drop-shadow(0 6px 18px rgba(223,159,255,0.12));
-}
-
-/* Entrar button for dashboards */
-.dashboard-theme .dashboard-btn {
-  background: var(--accent-dynamic);
+  background: var(--accent-pale);
   color: var(--bg-dark);
-  border-radius: 12px;
-  padding: 0.6rem 0.9rem;
-  box-shadow: 0 12px 30px rgba(223,159,255,0.12);
-  border: 1px solid rgba(223,159,255,0.18);
-  font-weight: 700;
-  transition: transform .14s ease, filter .14s ease;
+  box-sizing: border-box;
 }
 
-.dashboard-theme .dashboard-btn:hover {
-  transform: translateY(-3px);
-  filter: brightness(0.98);
+/* Header: 100% ancho borde a borde en morado profundo */
+.dashboard-theme header {
+  width: 100%;
+  background: var(--bg-dark);
+  box-shadow: 0 8px 28px rgba(11,8,30,0.12);
 }
 
-/* Titles and header adjustments */
-.dashboard-theme .dashboard-header {
-  background: var(--bg-dark) !important;
-  color: var(--accent-pale) !important;
+/* Contenedor principal: ESPACIADO AMPLIADO para lujo */
+.dashboard-theme .max-w-6xl.mx-auto {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 6rem !important;  /* lateral amplio */
+  padding-right: 6rem !important;
+  /* Restaurar padding superior/inferior a valor anterior más compacto */
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+  box-sizing: border-box;
 }
 
-/* small utility to ensure icons bounce lightly on hover */
-.dashboard-theme .group-hover-animate:hover {
-  transform: translateY(-6%);
-  transition: transform 360ms cubic-bezier(.2,.9,.3,1);
+/* Layout: grid centrado, gap amplio, 3 columnas en escritorio */
+.dashboard-theme .dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 3.5rem; /* separación amplia y uniforme */
+  justify-items: center;
 }
 
-/* Ensure card inner text uses pale accent where appropriate */
-.dashboard-theme .card-elevated p,
-.dashboard-theme .card-elevated .card-description {
-  color: rgba(245,233,206,0.95); /* accent pale for readability */
+@media (min-width: 640px) {
+  .dashboard-theme .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* Layout similar to login: left purple panel, right pale panel */
-.dashboard-theme .dashboard-card {
-  overflow: hidden;
-  border-radius: 1rem;
+@media (min-width: 1024px) {
+  /* Forzar 3 columnas, filas uniformes (3x2 apariencia) y centrar la cuadrícula */
+  .dashboard-theme .dashboard-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 240px; /* filas homogéneas para apariencia 3x2 */
+    gap: 4rem;
+    justify-content: center;
+    align-items: start;
+  }
 }
 
-.dashboard-theme .dashboard-card .left-panel {
-  padding: 2rem;
-  background: linear-gradient(135deg, var(--bg-dark), var(--bg-mid));
-  color: var(--accent-pale);
+/* Tarjetas: blancas, compactas (para que el fondo pálido domine), sombra elegante */
+.dashboard-theme .card-elevated {
+  background: #ffffff; /* tarjeta blanca pura */
+  color: var(--bg-dark);
+  border-radius: 14px;
+  box-shadow: 0 40px 100px rgba(11,8,30,0.14), 0 16px 40px rgba(11,8,30,0.08);
+  border: 1px solid rgba(11,8,30,0.04);
+  padding: 1.25rem 1.25rem; /* mayor padding interior */
+  min-height: 280px;       /* tarjetas más altas */
+  max-width: 420px;       /* tarjetas más anchas */
+  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.dashboard-theme .card-elevated:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 50px 120px rgba(11,8,30,0.14), 0 18px 48px rgba(11,8,30,0.08);
+}
+
+.dashboard-theme .card-elevated .card-title,
+.dashboard-theme .card-elevated h3 { color: var(--bg-dark); }
+
+/* Círculo detrás del ícono: base blanco opaco muy bajo */
+.dashboard-theme .icon-bubble {
+  position: relative;
+  width: 96px; /* bubble aún más grande */
+  height: 96px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-theme .feature-icon {
+  width: 56px; /* icono mucho más grande */
+  height: 56px;
+  z-index: 2;
+  color: #ffffff; /* íconos en blanco para contraste con círculo morado */
+  transition: transform 200ms cubic-bezier(.2,.9,.3,1), color 180ms ease;
+}
+
+.dashboard-theme .icon-inner-accent {
+  position: absolute;
+  left: 50% !important;
+  top: 50% !important;
+  bottom: auto !important; /* override App.css bottom:-10px */
+  transform: translate(-50%, -50%) !important;
+  width: 92px !important; /* mucho más grande para acompañar el icono */
+  height: 92px !important;
+  border-radius: 50% !important;
+  background: var(--bg-dark) !important; /* morado oscuro siempre visible */
+  z-index: 1;
+  pointer-events: none;
+  transition: transform 220ms cubic-bezier(.2,.9,.3,1), box-shadow 260ms ease !important;
+}
+
+/* Hover: mantener fondo morado, añadir un glow y ligero scale */
+.dashboard-theme .card-elevated:hover .icon-inner-accent {
+  transform: translate(-50%, -50%) scale(1.04) !important;
+  box-shadow: 0 28px 72px rgba(93,0,103,0.18) !important;
+  background: var(--bg-dark) !important; /* ensure it stays purple on hover */
+}
+
+.dashboard-theme .card-elevated:hover .feature-icon { transform: translateY(-6%); color: var(--bg-dark); }
+
+.dashboard-theme .card-elevated:hover .feature-icon {
+  color: #c0c0c0 !important; /* plateado */
+  transform: translateY(-8%) scale(1.02);
+}
+
+.dashboard-theme .card-elevated:hover .icon-inner-accent {
+  background: var(--bg-dark) !important;
+  box-shadow: 0 18px 38px rgba(0,0,0,0.25), 0 6px 18px rgba(0,0,0,0.12) !important;
+  transform: translate(-50%, -50%) scale(1.04) !important;
+}
+
+/* Botón y utilidades */
+.dashboard-theme .dashboard-btn { background: var(--bg-mid); color: white; border-radius: 10px; padding: 0.55rem 0.9rem; border: none; font-weight: 700; }
+
+/* Ajustes para pantallas muy pequeñas: reducir padding lateral para evitar desborde */
+@media (max-width: 520px) {
+  .dashboard-theme .max-w-6xl.mx-auto { padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 3rem !important; padding-bottom: 3rem !important; }
+  .dashboard-theme .dashboard-grid { gap: 1.25rem; }
+  .dashboard-theme .card-elevated { max-width: 100%; min-height: 160px; }
+}
+
+/* Asegurar que el header interior esté alineado correctamente */
+.dashboard-theme header .max-w-6xl { display: flex; align-items: center; justify-content: space-between; }
+
+/* Evitar recorte accidental */
+.dashboard-theme .card-elevated, .dashboard-theme .icon-bubble { overflow: visible; }
+
+/* User area (header) - enlarge avatar, icons and buttons for better visibility */
+.dashboard-theme .user-controls, .dashboard-theme .flex.items-center.gap-3 {
+  display: flex;
+  align-items: center;
   gap: 1rem;
 }
 
-.dashboard-theme .dashboard-card .right-panel {
-  padding: 2rem;
-  background: linear-gradient(180deg, #fbf9ff, #f6f3ff);
-}
-
-/* Cards inside the right panel should be light and clean (login-like) */
-.dashboard-theme .right-panel .card-elevated {
+.dashboard-theme .avatar {
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: #ffffff;
-  color: #111827;
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(11,8,30,0.08), 0 1px 4px rgba(11,8,30,0.06);
-  border: 1px solid rgba(75,22,105,0.06);
+  box-shadow: 0 8px 20px rgba(11,8,30,0.08);
 }
 
-.dashboard-theme .right-panel .dashboard-icon {
-  color: var(--accent-dynamic) !important;
+.dashboard-theme .avatar-icon {
+  width: 32px !important;
+  height: 32px !important;
+  color: var(--bg-dark) !important;
 }
 
-.dashboard-theme .right-panel .text-muted {
-  color: rgba(17,24,39,0.6);
+.dashboard-theme .logout-icon {
+  width: 22px !important;
+  height: 22px !important;
+  color: var(--bg-dark) !important;
 }
+
+.dashboard-theme .px-3.py-1.rounded-md.bg-white\/_10.text-white,
+.dashboard-theme .ml-2.inline-flex.items-center.gap-2.px-3.py-1.rounded-md.bg-white\/_90 {
+  padding: 0.7rem 1rem !important;
+  font-size: 0.95rem !important;
+}
+
+.dashboard-theme .ml-2.inline-flex.items-center.gap-2.px-3.py-1.rounded-md.bg-white\/_90 span {
+  font-size: 0.95rem;
+}
+

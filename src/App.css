@@ -40,3 +40,45 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Dashboard icon / small decorative circle styles */
+.icon-bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.icon-inner-accent {
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(223,159,255,0.12); /* subtle halo */
+  z-index: 0;
+  pointer-events: none;
+}
+
+.icon-bubble > svg,
+.icon-bubble .icon-beige {
+  z-index: 10;
+}
+
+.icon-beige {
+  color: #f5e0c6 !important; /* beige icon color */
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08));
+}
+
+/* Make cards a bit lighter and airier by default */
+.rounded-2xl {
+  border-radius: 12px;
+}
+
+/* Slightly larger gaps for an airy layout */
+.gap-8 {
+  gap: 2rem;
+}
