@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useGateway } from '@/contexts/GatewayContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login: loginGateway } = useGateway();
+  const { login: loginAuth } = useAuth();
 
   const [cedula, setCedula] = useState('');
   const [password, setPassword] = useState('');
@@ -39,13 +38,14 @@ const Login: React.FC = () => {
       return;
     }
     setLoading(true);
-    console.log('Login button clicked'); // Confirma que se ejecuta
-    const response = await loginGateway('/auth/login', { cedula, password });
-    if (response.data) {
+    console.log('Login button clicked');
+    try {
+      // role/professorId not needed for backend login; they are ignored in context
+      await loginAuth(cedula, password, 'estudiante');
       console.log('Login successful, navigating...');
       navigate('/dashboard');
-    } else {
-      console.error('Login failed:', response.error);
+    } catch (err) {
+      console.error('Login failed:', err);
       setError('Credenciales inválidas');
     }
     setLoading(false);

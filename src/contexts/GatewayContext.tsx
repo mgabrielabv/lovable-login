@@ -1,7 +1,6 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { ApiGateway, ApiResponse } from '../api/gateway'; // Importa la clase y la interfaz
-
-const BASE_URL = 'http://localhost:3003';
+import { API_BASE } from '@/api/config';
 
 interface GatewayContextType {
   get: <T>(endpoint: string, token?: string) => Promise<ApiResponse<T>>;
@@ -27,7 +26,7 @@ interface GatewayProviderProps {
 }
 
 export const GatewayProvider: React.FC<GatewayProviderProps> = ({ children }) => {
-  const gateway = new ApiGateway(BASE_URL);
+  const gateway = new ApiGateway(API_BASE);
 
   const value = {
     get: gateway.get.bind(gateway),

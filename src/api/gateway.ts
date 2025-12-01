@@ -1,4 +1,5 @@
-const BASE_URL = 'http://localhost:3003'; 
+import { API_BASE } from './config';
+const BASE_URL = API_BASE; 
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -18,8 +19,7 @@ export class ApiGateway {
     token?: string
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
-    const tokenToUse = token || localStorage.getItem('authToken'); // Usa token pasado o de localStorage
-
+    // Cookie-based auth: no localStorage/token; rely on HttpOnly cookie
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
@@ -28,11 +28,8 @@ export class ApiGateway {
       Object.assign(headers, options.headers as Record<string, string>);
     }
 
-    if (tokenToUse) {
-      headers.Authorization = `Bearer ${tokenToUse}`;
-    }
-
-    const requestOptions = { ...options, headers };
+    // Always send credentials so cookies travel with requests
+    const requestOptions: RequestInit = { ...options, headers, credentials: 'include' };
     console.log('Gateway Request:', { url, method: options.method || 'GET', headers, body: options.body });
 
     try {
@@ -77,17 +74,15 @@ export class ApiGateway {
   }
 
   async login(endpoint: string, body: any): Promise<ApiResponse<any>> {
+    // Perform login; backend should set HttpOnly cookie via Set-Cookie
     const response = await this.post(endpoint, body);
     console.log('Login Response:', response);
-    if (response.data && (response.data as { accessToken?: string }).accessToken) {
-      localStorage.setItem('authToken', (response.data as { accessToken: string }).accessToken);
-      console.log('Token stored in localStorage');
-    }
     return response;
   }
 
   logout(): void {
-    localStorage.removeItem('authToken');
+    // For cookie-based auth, logout should be performed by calling backend endpoint
+    // Left as a no-op here; use an explicit API call from AuthContext
   }
 }
 
