@@ -38,16 +38,12 @@ const Login: React.FC = () => {
 
   const findCandidates = () => {
     clearError();
-    // keep previous behavior: clear any ephemeral role options
-    // (no separate tab flow)
     const stored = localStorage.getItem('conservatorio_users');
     let users: any[] = [];
     if (stored) {
       try {
         users = JSON.parse(stored);
       } catch (e) {
-        // If stored data is corrupted (not valid JSON), attempt an automatic repair by
-        // restoring a small set of demo users so the app remains usable in dev.
         const demo = [
           { id: '1', name: 'Profesor Álvarez', email: 'prof.alvarez@conservatorio.local', role: 'profesor', cedula: '123456', password: 'secret', professorId: 'PROF-001' },
           { id: '2', name: 'Estudiante Demo', email: 'est.demo@conservatorio.local', role: 'estudiante', cedula: '654321', password: 'secret' }
@@ -69,14 +65,13 @@ const Login: React.FC = () => {
     return mapped;
   };
 
-  const handleInitialSubmit = (e: React.FormEvent) => {
+  const handleInitialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cedula.trim() || !password.trim()) {
       setError('Completa cédula y contraseña');
       return;
     }
-
-    const found = findCandidates();
+  const found = findCandidates();
     // If the user is registered both as estudiante and profesor, show role selection screen
     const hasStudent = found.some(f => f.role === 'estudiante');
     const hasProfesor = found.some(f => f.role === 'profesor');
@@ -130,6 +125,20 @@ const Login: React.FC = () => {
     } finally {
       setLoading(false);
     }
+=======
+    setLoading(true);
+    console.log('Login button clicked');
+    try {
+      // role/professorId not needed for backend login; they are ignored in context
+      await loginAuth(cedula, password, 'estudiante');
+      console.log('Login successful, navigating...');
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Login failed:', err);
+      setError('Credenciales inválidas');
+    }
+    setLoading(false);
+>>>>>>> origin/master
   };
 
   return (
@@ -182,7 +191,6 @@ const Login: React.FC = () => {
                       </button>
                     </div>
                   </div>
-
                   {candidates.length > 1 && (
                     <div>
                       <Label>Selecciona tu rol</Label>
@@ -216,6 +224,15 @@ const Login: React.FC = () => {
                         </Button>
                     </div>
                   )}
+=======
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-slate-500">¿No tienes cuenta? <Link to="/registro/estudiante" className="text-primary underline">Regístrate</Link></div>
+                    <Button type="submit" disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
+                      <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
+                      <ArrowRight className="ml-3 w-4 h-4" />
+                    </Button>
+                  </div>
+>>>>>>> origin/master
                 </form>
               </CardContent>
             </div>
