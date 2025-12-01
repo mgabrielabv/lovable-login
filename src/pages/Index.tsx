@@ -18,7 +18,6 @@ const Index = () => {
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [showPensum, setShowPensum] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  
 
   const values = [
     {
