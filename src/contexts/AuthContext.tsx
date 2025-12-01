@@ -31,6 +31,145 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const normalizeUser = (candidate: any): User | null => {
+  if (!candidate || typeof candidate !== 'object') return null;
+  const role = (candidate.rol || candidate.role) as UserRole | undefined;
+  const name = candidate.nombres ? `${candidate.nombres} ${candidate.apellidos || ''}`.trim() : (candidate.name || '');
+  if (!role) return null;
+  return {
+    id: candidate.id || candidate.cedula || 'self',
+    name,
+    email: candidate.email || '',
+    role: role as UserRole,
+    cedula: candidate.cedula || '',
+    cedulaRepresentante: candidate.cedulaRepresentante || undefined,
+    esMenor: candidate.esMenor || undefined,
+    professorId: candidate.professorId || undefined,
+    fechaNacimiento: candidate.fechaNacimiento || undefined,
+    telefono: candidate.telefono || undefined,
+    instrumento: candidate.instrumento || undefined,
+    nivel: candidate.nivel || undefined,
+    horario: candidate.horario || undefined,
+  } as User;
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const tryFetchCurrent = async (): Promise<User | null> => {
+    const endpoints = [
+      ...AUTH_ME_ENDPOINTS,
+      '/auth/me', '/users/me', '/me', '/auth/profile', '/profile', '/auth/user', '/user'
+    ];
+    for (const ep of endpoints) {
+      try {
+        const res = await gateway.get(ep);
+        const candidate = (res && (res as any).data) ? (res as any).data : res;
+        const u = normalizeUser(candidate);
+        if (u) return u;
+      } catch (e) {
+        // try next
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const u = await tryFetchCurrent();
+        if (mounted && u) setUser(u);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const login = async (cedula: string, password: string, role: UserRole, professorId?: string) => {
+    setLoading(true);
+    const res = await gateway.login(AUTH_LOGIN_ENDPOINT, { cedula, password, role, professorId });
+    if ((res as any).error) {
+      setLoading(false);
+      throw new Error((res as any).error || 'Error de autenticación');
+    }
+    const candidate = (res && (res as any).data) ? (res as any).data : res;
+    const u = normalizeUser(candidate) || await tryFetchCurrent();
+    if (u) setUser(u);
+    setLoading(false);
+  };
+
+  const register = async (userData: Partial<User>, password: string) => {
+    setLoading(true);
+    const res = await gateway.post(AUTH_REGISTER_ENDPOINT, { ...userData, password });
+    if ((res as any).error) {
+      setLoading(false);
+      throw new Error((res as any).error || 'No se pudo registrar');
+    }
+    const candidate = (res && (res as any).data) ? (res as any).data : res;
+    const u = normalizeUser(candidate) || await tryFetchCurrent();
+    if (u) setUser(u);
+    setLoading(false);
+  };
+
+  const logout = () => {
+    setLoading(true);
+    gateway.post(AUTH_LOGOUT_ENDPOINT, {}).finally(() => {
+      setUser(null);
+      setLoading(false);
+    });
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated: !!user, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = (): AuthContextType => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+};
+
+export default AuthProvider;
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import gateway from '@/api/gateway';
+import { AUTH_LOGIN_ENDPOINT, AUTH_LOGOUT_ENDPOINT, AUTH_ME_ENDPOINTS, AUTH_REGISTER_ENDPOINT } from '@/api/config';
+
+export type UserRole = 'estudiante' | 'profesor' | 'admin';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  cedula: string;
+  cedulaRepresentante?: string;
+  esMenor?: boolean;
+  professorId?: string;
+  fechaNacimiento?: string;
+  telefono?: string;
+  instrumento?: string;
+  nivel?: string;
+  horario?: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  login: (cedula: string, password: string, role: UserRole, professorId?: string) => Promise<void>;
+  register: (userData: Partial<User>, password: string) => Promise<void>;
+  logout: () => void;
+  isAuthenticated: boolean;
+  loading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
