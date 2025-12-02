@@ -70,6 +70,8 @@ export default function Carousel3D() {
             opacity: opacity,
             zIndex: zIndex,
             left: '37%', // Centrar horizontalmente
+            width: 'auto',
+            margin: '0 auto',
             transformOrigin: 'center center', // Punto de rotación
           }}
         >
@@ -88,11 +90,11 @@ export default function Carousel3D() {
     });
   };
 
-  return (
-    <div className="relative w-full h-80 flex items-center justify-center my-6">
-      <div className="relative w-full max-w-6xl mx-auto">
-        {renderItems()}
-      </div>
+  return(
+  <div className="relative w-full h-96 flex items-center justify-center my-6 px-4 md:px-8">
+    <div className="relative w-full max-w-4xl mx-auto px-4 md:px-8">
+      {renderItems()}
     </div>
+  </div>
   );
 }
