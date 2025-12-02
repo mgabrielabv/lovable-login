@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, User } from 'lucide-react';
+import { AUTH_SELECT_ROLE_ENDPOINT, AUTH_ME_ENDPOINTS } from '@/api/config';
+import gateway from '@/api/gateway';
 import { useAuth } from '@/contexts/AuthContext';
 
 type Candidate = { id: string; name: string; role: string; professorId?: string };
@@ -10,31 +12,80 @@ type Candidate = { id: string; name: string; role: string; professorId?: string 
 const RoleSelection: React.FC = () => {
   const loc = useLocation();
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const candidates: Candidate[] = (loc.state as any)?.candidates || [];
+  const { login, setUser } = useAuth();
+  const roles: string[] = (loc.state as any)?.roles || [];
   const cedula: string = (loc.state as any)?.cedula || '';
   const password: string = (loc.state as any)?.password || '';
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const extractUser = (data: any): any => {
+    if (!data || typeof data !== 'object') return null;
+    const candidate = (data.user && typeof data.user === 'object') ? data.user : data;
+    if (candidate && candidate.rol && candidate.nombres) {
+      return {
+        id: candidate.id || candidate.cedula || 'self',
+        name: `${candidate.nombres} ${candidate.apellidos || ''}`.trim(),
+        email: candidate.email || '',
+        role: candidate.rol,
+        cedula: candidate.cedula || '',
+        cedulaRepresentante: candidate.cedulaRepresentante || undefined,
+        esMenor: candidate.esMenor || undefined,
+        professorId: candidate.professorId || undefined,
+        fechaNacimiento: candidate.fechaNacimiento || undefined,
+        telefono: candidate.telefono || undefined,
+        instrumento: candidate.instrumento || undefined,
+        nivel: candidate.nivel || undefined,
+        horario: candidate.horario || undefined,
+      };
+    }
+    if (candidate && candidate.id && candidate.role) return candidate;
+    // Nuevo: manejar payload de JWT con userId y rol
+    if (candidate && candidate.userId && candidate.rol) {
+      return {
+        id: candidate.userId.toString(),
+        name: 'Usuario',
+        email: '',
+        role: candidate.rol,
+        cedula: '',
+      };
+    }
+    return null;
+  };
+
   const handleChoose = async (role: string) => {
     setError('');
-    // If we have credentials from the previous screen, perform the login here
+    // If we have credentials from the previous screen, perform the select-role here
     if (cedula && password) {
       setLoading(true);
       try {
-        // find a candidate with the selected role so we can provide professorId when present
-        const chosen = candidates.find(c => c.role === role);
-        const professorId = chosen?.professorId;
-        // @ts-ignore
-        await login(cedula, password, role as any, professorId || undefined);
+        // Llamar a select-role con el rol elegido
+        const res = await gateway.post(AUTH_SELECT_ROLE_ENDPOINT, { role });
+        if (res.error) {
+          setError(res.error);
+          return;
+        }
+        // Después de seleccionar rol, validar sesión para obtener el usuario
+        const validateEndpoint = AUTH_ME_ENDPOINTS[0] || '/auth/validate';
+        const valRes = await gateway.get(validateEndpoint);
+        if (valRes.error) {
+          setError(valRes.error || 'Error al validar sesión después de seleccionar rol');
+          return;
+        }
+        const user = extractUser(valRes.data);
+        if (!user) {
+          setError('No se pudo obtener el usuario después de seleccionar rol');
+          return;
+        }
+        // Setear usuario y navegar según rol elegido
+        setUser(user);
         if (role === 'profesor') {
-          navigate('/teacher/dashboard', { state: { name: chosen?.name } });
+          navigate('/teacher/dashboard');
         } else if (role === 'personal') {
-          navigate('/personal/dashboard', { state: { name: chosen?.name } });
+          navigate('/personal/dashboard');
         } else if (role === 'master' || role === 'admin') {
-          navigate('/master/dashboard', { state: { name: chosen?.name } });
+          navigate('/master/dashboard');
         } else {
           navigate('/student/dashboard');
         }
@@ -70,13 +121,12 @@ const RoleSelection: React.FC = () => {
           {error && <div className="text-sm text-red-600 text-center mb-4">{error}</div>}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Dynamically render role options based on detected candidates */}
+            {/* Dynamically render role options based on roles from backend */}
             {(() => {
-              const roles = Array.from(new Set(candidates.map(c => c.role)));
               // Prefer ordering: master, personal, profesor, estudiante
               const order = ['master', 'personal', 'profesor', 'estudiante', 'admin'];
-              roles.sort((a: string, b: string) => order.indexOf(a) - order.indexOf(b));
-              return roles.map((r) => {
+              const sortedRoles = roles.sort((a: string, b: string) => order.indexOf(a) - order.indexOf(b));
+              return sortedRoles.map((r) => {
                 if (r === 'profesor') {
                   return (
                     <button

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import gateway from '@/api/gateway';
+import { AUTH_LOGIN_ENDPOINT, AUTH_ROLES_ENDPOINT } from '@/api/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -97,29 +99,43 @@ const LoginFixed: React.FC = () => {
     }
   };
 
-  const handleInitialSubmit = (e: React.FormEvent) => {
+  const handleInitialSubmit = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
     } catch (err) {
       // in case called from onClick without FormEvent
     }
     console.log('handleInitialSubmit start', { cedula });
-    const found = findCandidates();
-    if (found.length === 1) {
-      const only = found[0];
-      if (only.role === 'profesor' || only.role === 'admin') {
-        setSelectedRole(only.role); setProfessorId(only.professorId || '');
-        if (only.professorId) proceedLogin(only.role);
-        return;
-      }
-      proceedLogin(only.role);
+    if (!cedula.trim() || !password.trim()) {
+      setError('Completa cédula y contraseña');
       return;
     }
-
-    if (found.length > 1) {
-      console.log('Multiple candidates found - redirecting to role-selection', found);
-      navigate('/role-selection', { state: { candidates: found, cedula, password } });
-      return;
+    setLoading(true);
+    try {
+      // 1) Hacer login primero para obtener la sesión/cookies
+      const loginRes = await gateway.post(AUTH_LOGIN_ENDPOINT, { cedula, password });
+      if (loginRes.error) {
+        setError(loginRes.error);
+        return;
+      }
+      // 2) Luego obtener los roles disponibles
+      const query = `?cedula=${encodeURIComponent(cedula)}&password=${encodeURIComponent(password)}`;
+      const res = await gateway.get(AUTH_ROLES_ENDPOINT + query);
+      if (res.error) {
+        setError(res.error);
+        return;
+      }
+      const roles = (res.data as any).roles;
+      if (!Array.isArray(roles) || roles.length === 0) {
+        setError('No se encontraron roles para estas credenciales');
+        return;
+      }
+      // Navegar a selección de rol con los roles obtenidos
+      navigate('/role-selection', { state: { roles, cedula, password } });
+    } catch (err: any) {
+      setError(err?.message || 'Error al obtener roles');
+    } finally {
+      setLoading(false);
     }
   };
 

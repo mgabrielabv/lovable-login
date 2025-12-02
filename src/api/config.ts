@@ -17,3 +17,5 @@ export const AUTH_LOGOUT_ENDPOINT: string = "/auth/logout";
 export const AUTH_LOGIN_ENDPOINT: string = "/auth/login";
 // No hay registro en el backend provisto; mantenemos un placeholder
 export const AUTH_REGISTER_ENDPOINT: string = "/auth/register";
+export const AUTH_ROLES_ENDPOINT: string = "/auth/roles";
+export const AUTH_SELECT_ROLE_ENDPOINT: string = "/auth/select-role";
