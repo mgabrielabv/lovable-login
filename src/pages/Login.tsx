@@ -8,15 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Music2, AlertCircle, Eye, EyeOff, ArrowRight, ArrowLeft, IdCard, Key } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-type Candidate = { id: string; name: string; role: string; professorId?: string };
-
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const [cedula, setCedula] = useState('');
   const [password, setPassword] = useState('');
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [professorId, setProfessorId] = useState('');
   const [error, setError] = useState('');
@@ -36,70 +33,16 @@ const Login: React.FC = () => {
 
   const clearError = () => setError('');
 
-  const findCandidates = () => {
-    clearError();
-    const stored = localStorage.getItem('conservatorio_users');
-    let users: any[] = [];
-    if (stored) {
-      try {
-        users = JSON.parse(stored);
-      } catch (e) {
-        const demo = [
-          { id: '1', name: 'Profesor Álvarez', email: 'prof.alvarez@conservatorio.local', role: 'profesor', cedula: '123456', password: 'secret', professorId: 'PROF-001' },
-          { id: '2', name: 'Estudiante Demo', email: 'est.demo@conservatorio.local', role: 'estudiante', cedula: '654321', password: 'secret' }
-        ];
-        try {
-          localStorage.setItem('conservatorio_users', JSON.stringify(demo));
-          users = demo;
-          showNotice('Datos de usuarios reparados (demo) — usa 123456/secret o 654321/secret');
-        } catch (e2) {
-          setError('Error interno: no se pudo reparar datos de usuarios.');
-          return [];
-        }
-      }
-    }
-    const matches = users.filter((u: any) => u.cedula === cedula && u.password === password);
-    if (matches.length === 0) { setError('Credenciales inválidas'); return []; }
-    const mapped = matches.map((u: any) => ({ id: u.id, name: u.name, role: u.role, professorId: u.professorId }));
-    setCandidates(mapped);
-    return mapped;
-  };
-
   const handleInitialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cedula.trim() || !password.trim()) {
       setError('Completa cédula y contraseña');
       return;
     }
-  const found = findCandidates();
-    // If the user is registered both as estudiante and profesor, show role selection screen
-    const hasStudent = found.some(f => f.role === 'estudiante');
-    const hasProfesor = found.some(f => f.role === 'profesor');
-    if (hasStudent && hasProfesor) {
-      // Pass credentials along so the RoleSelection screen can complete the login
-      navigate('/role-selection', { state: { candidates: found, cedula, password } });
-      return;
-    }
-    if (found.length === 1) {
-      const only = found[0];
-      // If the found user is a professor or admin, restore inline flow: set selected role
-      // and, if professorId exists, proceed immediately; otherwise show professorId input.
-      if (only.role === 'profesor' || only.role === 'admin') {
-        setSelectedRole(only.role);
-        setProfessorId(only.professorId || '');
-        // if we already have a stored professorId, proceed immediately
-        if (only.professorId) {
-          proceedLogin(only.role);
-          return;
-        }
-        // keep candidate stored for later (will show professorId input)
-        setCandidates([only]);
-        return;
-      }
-
-      // default: single non-ambiguous role -> proceed
-      proceedLogin(only.role);
-    }
+    // Llamar directamente al backend con los datos proporcionados.
+    // Si el rol no está seleccionado, por defecto usar 'estudiante'.
+    const roleToUse = selectedRole || 'estudiante';
+    proceedLogin(roleToUse);
   };
 
   
@@ -125,20 +68,6 @@ const Login: React.FC = () => {
     } finally {
       setLoading(false);
     }
-=======
-    setLoading(true);
-    console.log('Login button clicked');
-    try {
-      // role/professorId not needed for backend login; they are ignored in context
-      await loginAuth(cedula, password, 'estudiante');
-      console.log('Login successful, navigating...');
-      navigate('/dashboard');
-    } catch (err) {
-      console.error('Login failed:', err);
-      setError('Credenciales inválidas');
-    }
-    setLoading(false);
->>>>>>> origin/master
   };
 
   return (
@@ -191,16 +120,20 @@ const Login: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  {candidates.length > 1 && (
-                    <div>
-                      <Label>Selecciona tu rol</Label>
-                      <div className="flex gap-2 mt-2">
-                        {candidates.map(c => (
-                          <Button key={c.id} type="button" onClick={() => setSelectedRole(c.role)} disabled={loading}>{c.name} — {c.role}</Button>
-                        ))}
-                      </div>
+                  <div>
+                    <Label>Selecciona tu rol</Label>
+                    <div className="flex gap-2 mt-2">
+                      <Button type="button" onClick={() => setSelectedRole('estudiante')} disabled={loading} variant={selectedRole==='estudiante'?undefined:'outline'}>
+                        Estudiante
+                      </Button>
+                      <Button type="button" onClick={() => setSelectedRole('profesor')} disabled={loading} variant={selectedRole==='profesor'?undefined:'outline'}>
+                        Profesor
+                      </Button>
+                      <Button type="button" onClick={() => setSelectedRole('admin')} disabled={loading} variant={selectedRole==='admin'?undefined:'outline'}>
+                        Admin
+                      </Button>
                     </div>
-                  )}
+                  </div>
 
                   {(selectedRole && (selectedRole === 'profesor' || selectedRole === 'admin')) && (
                     <div>
@@ -215,7 +148,7 @@ const Login: React.FC = () => {
                     </div>
                   )}
 
-                  {(!selectedRole && candidates.length <= 1) && (
+                  {(!selectedRole) && (
                     <div className="flex justify-between items-center">
                       <div className="text-sm text-slate-500">¿No tienes cuenta? <Link to="/registro/estudiante" className="text-primary underline">Regístrate</Link></div>
                         <Button type="submit" disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
@@ -224,15 +157,6 @@ const Login: React.FC = () => {
                         </Button>
                     </div>
                   )}
-=======
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-slate-500">¿No tienes cuenta? <Link to="/registro/estudiante" className="text-primary underline">Regístrate</Link></div>
-                    <Button type="submit" disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
-                      <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
-                      <ArrowRight className="ml-3 w-4 h-4" />
-                    </Button>
-                  </div>
->>>>>>> origin/master
                 </form>
               </CardContent>
             </div>
