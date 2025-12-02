@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import gateway from '@/api/gateway';
+import { AUTH_LOGIN_ENDPOINT } from '@/api/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,17 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Music2, AlertCircle, Eye, EyeOff, ArrowRight, ArrowLeft, IdCard, Key } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-type Candidate = { id: string; name: string; role: string; professorId?: string };
-
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const [cedula, setCedula] = useState('');
   const [password, setPassword] = useState('');
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [professorId, setProfessorId] = useState('');
+  // No role selection on the login form. Role selection happens after successful auth if needed.
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -35,79 +33,79 @@ const Login: React.FC = () => {
   };
 
   const clearError = () => setError('');
-
-  const findCandidates = () => {
-    clearError();
-    // keep previous behavior: clear any ephemeral role options
-    // (no separate tab flow)
-    const stored = localStorage.getItem('conservatorio_users');
-    let users: any[] = [];
-    if (stored) {
-      try {
-        users = JSON.parse(stored);
-      } catch (e) {
-        // If stored data is corrupted (not valid JSON), attempt an automatic repair by
-        // restoring a small set of demo users so the app remains usable in dev.
-        const demo = [
-          { id: '1', name: 'Profesor Álvarez', email: 'prof.alvarez@conservatorio.local', role: 'profesor', cedula: '123456', password: 'secret', professorId: 'PROF-001' },
-          { id: '2', name: 'Estudiante Demo', email: 'est.demo@conservatorio.local', role: 'estudiante', cedula: '654321', password: 'secret' }
-        ];
-        try {
-          localStorage.setItem('conservatorio_users', JSON.stringify(demo));
-          users = demo;
-          showNotice('Datos de usuarios reparados (demo) — usa 123456/secret o 654321/secret');
-        } catch (e2) {
-          setError('Error interno: no se pudo reparar datos de usuarios.');
-          return [];
-        }
-      }
-    }
-    const matches = users.filter((u: any) => u.cedula === cedula && u.password === password);
-    if (matches.length === 0) { setError('Credenciales inválidas'); return []; }
-    const mapped = matches.map((u: any) => ({ id: u.id, name: u.name, role: u.role, professorId: u.professorId }));
-    setCandidates(mapped);
-    return mapped;
-  };
-
-  const handleInitialSubmit = (e: React.FormEvent) => {
+  const handleInitialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearError();
     if (!cedula.trim() || !password.trim()) {
       setError('Completa cédula y contraseña');
       return;
     }
-
-    const found = findCandidates();
-    // If the user is registered both as estudiante and profesor, show role selection screen
-    const hasStudent = found.some(f => f.role === 'estudiante');
-    const hasProfesor = found.some(f => f.role === 'profesor');
-    if (hasStudent && hasProfesor) {
-      // Pass credentials along so the RoleSelection screen can complete the login
-      navigate('/role-selection', { state: { candidates: found, cedula, password } });
-      return;
-    }
-    if (found.length === 1) {
-      const only = found[0];
-      // If the found user is a professor or admin, restore inline flow: set selected role
-      // and, if professorId exists, proceed immediately; otherwise show professorId input.
-      if (only.role === 'profesor' || only.role === 'admin') {
-        setSelectedRole(only.role);
-        setProfessorId(only.professorId || '');
-        // if we already have a stored professorId, proceed immediately
-        if (only.professorId) {
-          proceedLogin(only.role);
+    setLoading(true);
+    showNotice('Consultando roles...');
+    try {
+      const res = await gateway.post(AUTH_LOGIN_ENDPOINT, { cedula, password });
+      if ((res as any).error) {
+        // Backend returned an error; try localStorage fallback
+        const local = findLocalCandidates(cedula);
+        if (local && local.length > 1) {
+          navigate('/role-selection', { state: { candidates: local, cedula, password } });
           return;
         }
-        // keep candidate stored for later (will show professorId input)
-        setCandidates([only]);
+        if (local && local.length === 1) {
+          const role = local[0].role || local[0].rol || 'estudiante';
+          await proceedLogin(role);
+          return;
+        }
+        setError((res as any).error || 'Error al iniciar sesión');
         return;
       }
 
-      // default: single non-ambiguous role -> proceed
-      proceedLogin(only.role);
+      const data = (res as any).data || res;
+      if (data && Array.isArray(data.candidates) && data.candidates.length > 1) {
+        navigate('/role-selection', { state: { candidates: data.candidates, cedula, password } });
+        return;
+      }
+
+      if (data && (data.role || data.rol)) {
+        const role = (data.role || data.rol) as string;
+        await proceedLogin(role);
+        return;
+      }
+
+      if (data && Array.isArray(data.roles) && data.roles.length === 1) {
+        await proceedLogin(String(data.roles[0]));
+        return;
+      }
+
+      const local = findLocalCandidates(cedula);
+      if (local && local.length > 1) {
+        navigate('/role-selection', { state: { candidates: local, cedula, password } });
+        return;
+      }
+      if (local && local.length === 1) {
+        const role = local[0].role || local[0].rol || 'estudiante';
+        await proceedLogin(role);
+        return;
+      }
+
+      await proceedLogin('estudiante');
+    } catch (err: any) {
+      console.error('Login probe error', err);
+      const local = findLocalCandidates(cedula);
+      if (local && local.length > 1) {
+        navigate('/role-selection', { state: { candidates: local, cedula, password } });
+        return;
+      }
+      if (local && local.length === 1) {
+        const role = local[0].role || local[0].rol || 'estudiante';
+        await proceedLogin(role);
+        return;
+      }
+      setError(err?.message || String(err));
+    } finally {
+      setLoading(false);
     }
   };
-
-  
 
   const proceedLogin = async (role: string) => {
     clearError();
@@ -115,8 +113,7 @@ const Login: React.FC = () => {
     showNotice('Ingresando...');
     try {
       // @ts-ignore
-      await login(cedula, password, role as any, professorId || undefined);
-      // Redirect by role: estudiantes → student dashboard, profesores → teacher dashboard
+      await login(cedula, password, role as any);
       if (role === 'estudiante') {
         navigate('/student/dashboard');
       } else if (role === 'profesor') {
@@ -129,6 +126,20 @@ const Login: React.FC = () => {
       console.error('Login error', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const findLocalCandidates = (ced: string) => {
+    try {
+      const key = `localCandidates_${ced}`;
+      const raw = localStorage.getItem(key) || localStorage.getItem('localCandidates') || localStorage.getItem('localUsers');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && Array.isArray(parsed.candidates)) return parsed.candidates;
+      return null;
+    } catch (e) {
+      return null;
     }
   };
 
@@ -182,40 +193,13 @@ const Login: React.FC = () => {
                       </button>
                     </div>
                   </div>
-
-                  {candidates.length > 1 && (
-                    <div>
-                      <Label>Selecciona tu rol</Label>
-                      <div className="flex gap-2 mt-2">
-                        {candidates.map(c => (
-                          <Button key={c.id} type="button" onClick={() => setSelectedRole(c.role)} disabled={loading}>{c.name} — {c.role}</Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {(selectedRole && (selectedRole === 'profesor' || selectedRole === 'admin')) && (
-                    <div>
-                      <Label htmlFor="profesorId">ID Profesor (si corresponde)</Label>
-                      <Input id="profesorId" value={professorId} onChange={e => setProfessorId(e.target.value)} placeholder="ID Profesor" className="mt-1 shadow-input" disabled={loading} />
-                      <div className="flex justify-end mt-3">
-                        <Button onClick={() => proceedLogin(selectedRole as string)} disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
-                          <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
-                          <ArrowRight className="ml-3 w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {(!selectedRole && candidates.length <= 1) && (
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-slate-500">¿No tienes cuenta? <Link to="/registro/estudiante" className="text-primary underline">Regístrate</Link></div>
-                        <Button type="submit" disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
-                          <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
-                          <ArrowRight className="ml-3 w-4 h-4" />
-                        </Button>
-                    </div>
-                  )}
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-slate-500">¿No tienes cuenta? <Link to="/registro/estudiante" className="text-primary underline">Regístrate</Link></div>
+                      <Button type="submit" disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
+                        <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
+                        <ArrowRight className="ml-3 w-4 h-4" />
+                      </Button>
+                  </div>
                 </form>
               </CardContent>
             </div>
