@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import gateway from '@/api/gateway';
+import { AUTH_LOGIN_ENDPOINT } from '@/api/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,8 +16,7 @@ const Login: React.FC = () => {
 
   const [cedula, setCedula] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const [professorId, setProfessorId] = useState('');
+  // No role selection on the login form. Role selection happens after successful auth if needed.
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -32,20 +33,79 @@ const Login: React.FC = () => {
   };
 
   const clearError = () => setError('');
-
   const handleInitialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearError();
     if (!cedula.trim() || !password.trim()) {
       setError('Completa cédula y contraseña');
       return;
     }
-    // Llamar directamente al backend con los datos proporcionados.
-    // Si el rol no está seleccionado, por defecto usar 'estudiante'.
-    const roleToUse = selectedRole || 'estudiante';
-    proceedLogin(roleToUse);
-  };
+    setLoading(true);
+    showNotice('Consultando roles...');
+    try {
+      const res = await gateway.post(AUTH_LOGIN_ENDPOINT, { cedula, password });
+      if ((res as any).error) {
+        // Backend returned an error; try localStorage fallback
+        const local = findLocalCandidates(cedula);
+        if (local && local.length > 1) {
+          navigate('/role-selection', { state: { candidates: local, cedula, password } });
+          return;
+        }
+        if (local && local.length === 1) {
+          const role = local[0].role || local[0].rol || 'estudiante';
+          await proceedLogin(role);
+          return;
+        }
+        setError((res as any).error || 'Error al iniciar sesión');
+        return;
+      }
 
-  
+      const data = (res as any).data || res;
+      if (data && Array.isArray(data.candidates) && data.candidates.length > 1) {
+        navigate('/role-selection', { state: { candidates: data.candidates, cedula, password } });
+        return;
+      }
+
+      if (data && (data.role || data.rol)) {
+        const role = (data.role || data.rol) as string;
+        await proceedLogin(role);
+        return;
+      }
+
+      if (data && Array.isArray(data.roles) && data.roles.length === 1) {
+        await proceedLogin(String(data.roles[0]));
+        return;
+      }
+
+      const local = findLocalCandidates(cedula);
+      if (local && local.length > 1) {
+        navigate('/role-selection', { state: { candidates: local, cedula, password } });
+        return;
+      }
+      if (local && local.length === 1) {
+        const role = local[0].role || local[0].rol || 'estudiante';
+        await proceedLogin(role);
+        return;
+      }
+
+      await proceedLogin('estudiante');
+    } catch (err: any) {
+      console.error('Login probe error', err);
+      const local = findLocalCandidates(cedula);
+      if (local && local.length > 1) {
+        navigate('/role-selection', { state: { candidates: local, cedula, password } });
+        return;
+      }
+      if (local && local.length === 1) {
+        const role = local[0].role || local[0].rol || 'estudiante';
+        await proceedLogin(role);
+        return;
+      }
+      setError(err?.message || String(err));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const proceedLogin = async (role: string) => {
     clearError();
@@ -53,8 +113,7 @@ const Login: React.FC = () => {
     showNotice('Ingresando...');
     try {
       // @ts-ignore
-      await login(cedula, password, role as any, professorId || undefined);
-      // Redirect by role: estudiantes → student dashboard, profesores → teacher dashboard
+      await login(cedula, password, role as any);
       if (role === 'estudiante') {
         navigate('/student/dashboard');
       } else if (role === 'profesor') {
@@ -67,6 +126,20 @@ const Login: React.FC = () => {
       console.error('Login error', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const findLocalCandidates = (ced: string) => {
+    try {
+      const key = `localCandidates_${ced}`;
+      const raw = localStorage.getItem(key) || localStorage.getItem('localCandidates') || localStorage.getItem('localUsers');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && Array.isArray(parsed.candidates)) return parsed.candidates;
+      return null;
+    } catch (e) {
+      return null;
     }
   };
 
@@ -120,43 +193,13 @@ const Login: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <div>
-                    <Label>Selecciona tu rol</Label>
-                    <div className="flex gap-2 mt-2">
-                      <Button type="button" onClick={() => setSelectedRole('estudiante')} disabled={loading} variant={selectedRole==='estudiante'?undefined:'outline'}>
-                        Estudiante
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-slate-500">¿No tienes cuenta? <Link to="/registro/estudiante" className="text-primary underline">Regístrate</Link></div>
+                      <Button type="submit" disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
+                        <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
+                        <ArrowRight className="ml-3 w-4 h-4" />
                       </Button>
-                      <Button type="button" onClick={() => setSelectedRole('profesor')} disabled={loading} variant={selectedRole==='profesor'?undefined:'outline'}>
-                        Profesor
-                      </Button>
-                      <Button type="button" onClick={() => setSelectedRole('admin')} disabled={loading} variant={selectedRole==='admin'?undefined:'outline'}>
-                        Admin
-                      </Button>
-                    </div>
                   </div>
-
-                  {(selectedRole && (selectedRole === 'profesor' || selectedRole === 'admin')) && (
-                    <div>
-                      <Label htmlFor="profesorId">ID Profesor (si corresponde)</Label>
-                      <Input id="profesorId" value={professorId} onChange={e => setProfessorId(e.target.value)} placeholder="ID Profesor" className="mt-1 shadow-input" disabled={loading} />
-                      <div className="flex justify-end mt-3">
-                        <Button onClick={() => proceedLogin(selectedRole as string)} disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
-                          <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
-                          <ArrowRight className="ml-3 w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {(!selectedRole) && (
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-slate-500">¿No tienes cuenta? <Link to="/registro/estudiante" className="text-primary underline">Regístrate</Link></div>
-                        <Button type="submit" disabled={loading} className="flex items-center btn-brand-gradient px-4 py-2 rounded-full shadow-glow">
-                          <span className="font-medium">{loading ? 'Ingresando...' : 'Ingresar'}</span>
-                          <ArrowRight className="ml-3 w-4 h-4" />
-                        </Button>
-                    </div>
-                  )}
                 </form>
               </CardContent>
             </div>

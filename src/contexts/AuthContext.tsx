@@ -88,25 +88,49 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (cedula: string, password: string, role: UserRole, professorId?: string) => {
     setLoading(true);
-    const res = await gateway.login(AUTH_LOGIN_ENDPOINT, { cedula, password });
-    if (res.error) {
+    try {
+      const res = await gateway.login(AUTH_LOGIN_ENDPOINT, { cedula, password });
+      if (res.error) {
+        // fall through to local fallback
+        throw new Error(res.error || 'Error de autenticación');
+      }
+      const uFromLogin = extractUser(res.data);
+      if (uFromLogin) {
+        setUser(uFromLogin);
+        setLoading(false);
+        return;
+      }
+      const u = await fetchCurrentUser();
+      if (u) {
+        setUser(u);
+        setLoading(false);
+        return;
+      }
+      throw new Error('No se pudo obtener el usuario');
+    } catch (err) {
+      // Backend failed; attempt localStorage fallback
+      try {
+        const key = `localCandidates_${cedula}`;
+        const raw = localStorage.getItem(key) || localStorage.getItem('localCandidates') || localStorage.getItem('localUsers');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const candidates: any[] = Array.isArray(parsed) ? parsed : (parsed.candidates || []);
+          if (candidates.length > 0) {
+            // try to find candidate matching the requested role
+            const match = candidates.find(c => (c.role === role || c.rol === role));
+            const chosen = match || candidates[0];
+            const localUser = extractUser(chosen) || ({ id: chosen.id || chosen.cedula || 'local', name: chosen.name || chosen.nombres || '', email: chosen.email || '', role: (chosen.role || chosen.rol || role) as UserRole, cedula: chosen.cedula || cedula } as User);
+            setUser(localUser);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore JSON parse errors
+      }
       setLoading(false);
-      throw new Error(res.error || 'Error de autenticación');
+      throw err;
     }
-    const uFromLogin = extractUser(res.data);
-    if (uFromLogin) {
-      setUser(uFromLogin);
-      setLoading(false);
-      return;
-    }
-    const u = await fetchCurrentUser();
-    if (u) {
-      setUser(u);
-      setLoading(false);
-      return;
-    }
-    setLoading(false);
-    throw new Error('No se pudo obtener el usuario');
   };
 
   const register = async (userData: Partial<User>, password: string) => {
