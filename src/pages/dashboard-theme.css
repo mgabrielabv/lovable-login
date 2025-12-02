@@ -42,6 +42,28 @@
   .dashboard-theme .dashboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+/* Variant: 3-column grid (useful for master dashboard) - mirrors .dashboard-grid responsive behavior */
+.dashboard-theme .dashboard-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 3.5rem;
+  justify-items: center;
+}
+
+@media (min-width: 640px) {
+  .dashboard-theme .dashboard-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-theme .dashboard-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 240px;
+    gap: 4rem;
+    justify-content: center;
+    align-items: start;
+  }
+}
+
 @media (min-width: 1024px) {
   /* Forzar 3 columnas, filas uniformes (3x2 apariencia) y centrar la cuadrícula */
   .dashboard-theme .dashboard-grid {

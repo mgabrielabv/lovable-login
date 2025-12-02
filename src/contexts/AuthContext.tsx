@@ -1,8 +1,27 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import gateway from '@/api/gateway';
-import { AUTH_LOGIN_ENDPOINT, AUTH_LOGOUT_ENDPOINT, AUTH_ME_ENDPOINTS, AUTH_REGISTER_ENDPOINT } from '@/api/config';
+import { AUTH_LOGIN_ENDPOINT, AUTH_LOGOUT_ENDPOINT, AUTH_ME_ENDPOINTS, AUTH_REGISTER_ENDPOINT, USE_LOCAL_AUTH } from '@/api/config';
 
-export type UserRole = 'estudiante' | 'profesor' | 'admin';
+/*
+  AuthContext notes:
+  - The app can operate in two modes:
+    1) Backend mode: calls the real API endpoints using `gateway` + `API_BASE` (see `src/api/config.ts`).
+    2) Local mode: stores and reads user data from `localStorage` (useful when backend is down).
+
+  Toggle mode with `USE_LOCAL_AUTH` in `src/api/config.ts`.
+
+  LocalStorage keys used by convention:
+    - `localCandidates_<cedula>` : array of candidate user objects for that cedula
+    - `localCandidates` : fallback array of candidates
+    - `localUsers` : array of user objects (for registration/emulation)
+    - `localCurrentUser` : single object representing currently logged-in user
+
+  Example local seed (paste in browser console):
+    localStorage.setItem('localCandidates_123', JSON.stringify([{ cedula:'123', nombres:'Test', apellidos:'User', rol:'estudiante' }]));
+    localStorage.setItem('localCurrentUser', JSON.stringify({ id:'123', name:'Test User', email:'', role:'estudiante', cedula:'123' }));
+*/
+
+export type UserRole = 'estudiante' | 'profesor' | 'personal' | 'master' | 'admin';
 
 export interface User {
   id: string;
@@ -70,6 +89,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const fetchCurrentUser = async (): Promise<User | null> => {
+    // If we are running in local-mode, prefer localStorage stored current user
+    if (USE_LOCAL_AUTH) {
+      try {
+        const raw = localStorage.getItem('localCurrentUser');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const u = extractUser(parsed);
+          if (u) return u;
+        }
+      } catch (e) {
+        // ignore parse errors
+      }
+      // Running fully-local: do not call backend endpoints when no local user found
+      return null;
+    }
+
     for (const ep of AUTH_ME_ENDPOINTS) {
       try {
         const res = await gateway.get(ep);
@@ -98,6 +133,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (cedula: string, password: string, role: UserRole, professorId?: string) => {
     setLoading(true);
+    // If local mode is enabled, try localStorage first (fast, no network)
+    if (USE_LOCAL_AUTH) {
+      try {
+        const key = `localCandidates_${cedula}`;
+        const raw = localStorage.getItem(key) || localStorage.getItem('localCandidates') || localStorage.getItem('localUsers');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const candidates: any[] = Array.isArray(parsed) ? parsed : (parsed.candidates || []);
+          if (candidates.length > 0) {
+            const match = candidates.find(c => (c.role === role || c.rol === role));
+            const chosen = match || candidates[0];
+            const localUser = extractUser(chosen) || ({ id: chosen.id || chosen.cedula || 'local', name: chosen.name || chosen.nombres || '', email: chosen.email || '', role: (chosen.role || chosen.rol || role) as UserRole, cedula: chosen.cedula || cedula } as User);
+            // Save as current user
+            try { localStorage.setItem('localCurrentUser', JSON.stringify(localUser)); } catch(_) {}
+            setUser(localUser);
+            setLoading(false);
+            return;
+          }
+        }
+        // If no local credentials found, return an error in local mode
+        setLoading(false);
+        throw new Error('No se encontraron credenciales locales para ese usuario');
+      } catch (e) {
+        setLoading(false);
+        throw e;
+      }
+    }
+
+    // Backend mode (default if USE_LOCAL_AUTH=false): attempt remote login then fallback
     try {
       const res = await gateway.login(AUTH_LOGIN_ENDPOINT, { cedula, password });
       if (res.error) {
@@ -118,7 +182,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       throw new Error('No se pudo obtener el usuario');
     } catch (err) {
-      // Backend failed; attempt localStorage fallback
+      // Backend failed; attempt localStorage fallback (only as a fallback)
       try {
         const key = `localCandidates_${cedula}`;
         const raw = localStorage.getItem(key) || localStorage.getItem('localCandidates') || localStorage.getItem('localUsers');
@@ -126,10 +190,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const parsed = JSON.parse(raw);
           const candidates: any[] = Array.isArray(parsed) ? parsed : (parsed.candidates || []);
           if (candidates.length > 0) {
-            // try to find candidate matching the requested role
             const match = candidates.find(c => (c.role === role || c.rol === role));
             const chosen = match || candidates[0];
             const localUser = extractUser(chosen) || ({ id: chosen.id || chosen.cedula || 'local', name: chosen.name || chosen.nombres || '', email: chosen.email || '', role: (chosen.role || chosen.rol || role) as UserRole, cedula: chosen.cedula || cedula } as User);
+            try { localStorage.setItem('localCurrentUser', JSON.stringify(localUser)); } catch(_) {}
             setUser(localUser);
             setLoading(false);
             return;
@@ -145,25 +209,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const register = async (userData: Partial<User>, password: string) => {
     setLoading(true);
-    const res = await gateway.post(AUTH_REGISTER_ENDPOINT, { ...userData, password });
-    if (res.error) {
+      const res = await gateway.post(AUTH_REGISTER_ENDPOINT, { ...userData, password });
+      if (res.error) {
+        setLoading(false);
+        throw new Error(res.error || 'No se pudo registrar');
+      }
+      const uFromRegister = extractUser(res.data);
+      if (uFromRegister) {
+        setUser(uFromRegister);
+        setLoading(false);
+        return;
+      }
+      const u = await fetchCurrentUser();
+      if (u) {
+        setUser(u);
+        setLoading(false);
+        return;
+      }
       setLoading(false);
-      throw new Error(res.error || 'No se pudo registrar');
-    }
-    const uFromRegister = extractUser(res.data);
-    if (uFromRegister) {
-      setUser(uFromRegister);
-      setLoading(false);
-      return;
-    }
-    const u = await fetchCurrentUser();
-    if (u) {
-      setUser(u);
-      setLoading(false);
-      return;
-    }
-    setLoading(false);
-    throw new Error('No se pudo obtener el usuario registrado');
+      throw new Error('No se pudo obtener el usuario registrado');
   };
 
   const logout = () => {

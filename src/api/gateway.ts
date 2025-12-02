@@ -1,5 +1,15 @@
 import { API_BASE } from './config';
-const BASE_URL = API_BASE; 
+
+/*
+  ApiGateway: capa ligera para llamadas fetch al backend.
+  - Por defecto construye URLs con `API_BASE` + endpoint.
+  - Si quieres operar en modo "sin backend" usa la estrategia de
+    `localStorage` desde `AuthContext` (configurado por `USE_LOCAL_AUTH`).
+  - No cambiar este archivo si sólo quieres desarrollar con localStorage;
+    en su lugar activa `USE_LOCAL_AUTH` y provee los objetos JSON en localStorage.
+*/
+
+const BASE_URL = API_BASE;
 
 export interface ApiResponse<T = any> {
   data?: T;

@@ -10,7 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import ModeSelection from "./pages/ModeSelection";
 import LoginByRole from "./pages/LoginByRole";
-import Login from "./pages/Login";
+import LoginFixed from "./pages/LoginFixed";
 import RegisterStudent from "./pages/RegisterStudent";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
@@ -39,7 +39,7 @@ const App = () => (
             { path: '/personal/dashboard', element: <ProtectedRoute><PersonalDashboard /></ProtectedRoute> },
             { path: '/master/dashboard', element: <ProtectedRoute><MasterDashboard /></ProtectedRoute> },
             { path: '/login/:role', element: <LoginByRole /> },
-            { path: '/login', element: <Login /> },
+            { path: '/login', element: <LoginFixed /> },
             { path: '/registro/estudiante', element: <RegisterStudent /> },
             { path: '/dashboard', element: <ProtectedRoute><Dashboard /></ProtectedRoute> },
             { path: '*', element: <NotFound /> }

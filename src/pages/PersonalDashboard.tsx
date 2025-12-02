@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './dashboard-theme.css';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UserPlus, Users, FileText, Calendar, Star, BarChart2 } from 'lucide-react';
+import { UserPlus, Users, FileText, Calendar, Star, BarChart2, Music2, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const features = [
   { key: 'registro', title: 'Registrar Profesor/Estudiante', desc: 'Agregar nuevos usuarios al sistema', icon: <UserPlus /> },
@@ -16,6 +17,14 @@ const features = [
 
 const PersonalDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const name = user?.name || 'Personal';
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const go = (key: string) => {
     // placeholder navigation - adapt to your routes
@@ -24,9 +33,29 @@ const PersonalDashboard: React.FC = () => {
 
   return (
     <div className="dashboard-theme min-h-screen">
-      <header className="w-full bg-[#5d0067]">
-        <div className="max-w-6xl mx-auto p-6 flex items-center justify-between">
-          <div className="text-white font-semibold text-xl">Dashboard Personal</div>
+      <header className="w-full bg-gradient-to-r from-[#5d0067] to-[#703384]">
+        <div className="max-w-6xl mx-auto p-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="inline-flex items-center justify-center header-logo rounded-md shadow-md" style={{ background: '#fff8e2', padding: '0.6rem' }}>
+              <Music2 className="header-logo-icon" style={{ width: '40px', height: '40px' }} />
+            </div>
+          </div>
+
+          <div className="text-left">
+            <div className="text-white font-semibold text-lg">Bienvenido(a), {name}</div>
+            <div className="text-white text-sm opacity-70">Dashboard del Personal</div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button className="px-3 py-1 rounded-md bg-white/10 text-white">Perfil</button>
+            <div className="avatar rounded-full bg-white flex items-center justify-center">
+              <User className="avatar-icon" />
+            </div>
+            <button onClick={handleLogout} title="Cerrar sesión" className="ml-2 inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/90">
+              <LogOut className="logout-icon" />
+              <span className="text-sm text-[#5d0067]">Salir</span>
+            </button>
+          </div>
         </div>
       </header>
 

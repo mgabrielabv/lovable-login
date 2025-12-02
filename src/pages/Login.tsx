@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import gateway from '@/api/gateway';
-import { AUTH_LOGIN_ENDPOINT } from '@/api/config';
+import { AUTH_LOGIN_ENDPOINT, USE_LOCAL_AUTH } from '@/api/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,6 +43,23 @@ const Login: React.FC = () => {
     setLoading(true);
     showNotice('Consultando roles...');
     try {
+      // If local auth mode is enabled, skip backend probe and use localStorage
+      if (USE_LOCAL_AUTH) {
+        const local = findLocalCandidates(cedula);
+        if (local && local.length > 1) {
+          navigate('/role-selection', { state: { candidates: local, cedula, password } });
+          return;
+        }
+        if (local && local.length === 1) {
+          const role = local[0].role || local[0].rol || 'estudiante';
+          await proceedLogin(role);
+          return;
+        }
+        // No local candidates found — in local-only mode we do not call the backend.
+        setError('No hay datos locales para este usuario. Añade seeds en localStorage o desactiva USE_LOCAL_AUTH.');
+        return;
+      }
+
       const res = await gateway.post(AUTH_LOGIN_ENDPOINT, { cedula, password });
       if ((res as any).error) {
         // Backend returned an error; try localStorage fallback

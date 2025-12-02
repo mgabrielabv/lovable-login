@@ -24,6 +24,8 @@ const LoginByRole = () => {
         return 'Estudiante';
       case 'profesor':
         return 'Profesor';
+      case 'master':
+        return 'Master';
       case 'admin':
         return 'Administrador';
       default:
@@ -118,7 +120,7 @@ const LoginByRole = () => {
                 />
               </div>
 
-              {(role === 'profesor' || role === 'admin') && (
+              {(role === 'profesor' || role === 'admin' || role === 'master') && (
                 <div className="space-y-3">
                   <Label htmlFor="professorId" className="font-heading text-base">
                     ID de {role === 'profesor' ? 'Profesor' : 'Administrador'} *

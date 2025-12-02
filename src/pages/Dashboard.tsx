@@ -26,6 +26,7 @@ const Dashboard = () => {
       case 'profesor':
         return { label: 'Profesor', color: 'bg-lavender' };
       case 'admin':
+      case 'master':
         return { label: 'Administrador', color: 'bg-secondary' };
       default:
         return { label: role, color: 'bg-muted' };
@@ -193,7 +194,7 @@ const Dashboard = () => {
                     </ul>
                   </div>
                 )}
-                {user.role === 'admin' && (
+                {(user.role === 'admin' || user.role === 'master') && (
                   <div className="p-4 rounded-lg bg-secondary/10 border border-secondary">
                     <h3 className="font-heading font-semibold text-foreground mb-2">
                       Panel de Administración
