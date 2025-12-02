@@ -1,10 +1,9 @@
 // Configuracion fija (sin .env) segun backend en localhost:3003
-export const API_BASE: string = "/api";
+export const API_BASE: string = "http://localhost:3003";
 
 // Lista de posibles endpoints para obtener el usuario autenticado
 export const AUTH_ME_ENDPOINTS: string[] = [
   "/auth/validate",
-  "/auth/refresh",
 ];
 
 export const AUTH_LOGOUT_ENDPOINT: string = "/auth/logout";

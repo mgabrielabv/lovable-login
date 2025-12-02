@@ -15,34 +15,38 @@ export class ApiGateway {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {},
-    token?: string
+    options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
-    // Cookie-based auth: no localStorage/token; rely on HttpOnly cookie
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
+    const headers: Record<string, string> = {};
+    // Only set content-type when we actually send a JSON body
+    if (options.body && typeof options.body === 'string') {
+      headers['Content-Type'] = 'application/json';
+    }
 
     if (options.headers && typeof options.headers === 'object' && !Array.isArray(options.headers)) {
       Object.assign(headers, options.headers as Record<string, string>);
     }
 
-    // Always send credentials so cookies travel with requests
-    const requestOptions: RequestInit = { ...options, headers, credentials: 'include' };
+    const requestOptions: RequestInit = { ...options, headers };
     console.log('Gateway Request:', { url, method: options.method || 'GET', headers, body: options.body });
 
     try {
       const response = await fetch(url, requestOptions);
       console.log('Gateway Response Status:', response.status);
+      const isJson = (response.headers.get('content-type') || '').includes('application/json');
       if (!response.ok) {
         if (response.status === 401) {
-          // Handle unauthorized, e.g., redirect to login
-          console.error('Unauthorized access');
+          // Intentar leer mensaje del backend
+          const errBody = isJson ? await response.json().catch(() => undefined) : await response.text().catch(() => undefined);
+          const msg = typeof errBody === 'string' ? errBody : (errBody?.message || 'Unauthorized');
+          return { error: msg };
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errBody = isJson ? await response.json().catch(() => undefined) : await response.text().catch(() => undefined);
+        const msg = typeof errBody === 'string' ? errBody : (errBody?.message || `HTTP error! status: ${response.status}`);
+        return { error: msg };
       }
-      const data = await response.json();
+      const data = isJson ? await response.json() : await response.text();
       console.log('Gateway Response Data:', data);
       return { data };
     } catch (error) {
@@ -51,38 +55,39 @@ export class ApiGateway {
     }
   }
 
-  async get<T>(endpoint: string, token?: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET' }, token);
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'GET', credentials: 'include' });
   }
 
-  async post<T>(endpoint: string, body: any, token?: string): Promise<ApiResponse<T>> {
+  async post<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(body),
-    }, token);
+      credentials: 'include',
+    });
   }
 
-  async put<T>(endpoint: string, body: any, token?: string): Promise<ApiResponse<T>> {
+  async put<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(body),
-    }, token);
+      credentials: 'include',
+    });
   }
 
-  async delete<T>(endpoint: string, token?: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'DELETE' }, token);
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'DELETE', credentials: 'include' });
   }
 
   async login(endpoint: string, body: any): Promise<ApiResponse<any>> {
-    // Perform login; backend should set HttpOnly cookie via Set-Cookie
+    // Perform login; backend should return token
     const response = await this.post(endpoint, body);
     console.log('Login Response:', response);
     return response;
   }
 
   logout(): void {
-    // For cookie-based auth, logout should be performed by calling backend endpoint
-    // Left as a no-op here; use an explicit API call from AuthContext
+    // Logout is handled by calling the backend endpoint
   }
 }
 
