@@ -458,16 +458,13 @@ const Index = () => {
               const Icon = value.icon;
               return (
                 <Card 
-                  key={index}
-                  className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-primary/50"
-                  onClick={() => setSelectedValue(value.title)}
-                  style={{
-                    backgroundColor: index % 4 === 0 ? 'hsl(var(--background))' : 
-                                     index % 4 === 1 ? 'hsl(var(--accent))' :
-                                     index % 4 === 2 ? 'hsl(var(--muted))' :
-                                     'hsl(var(--accent) / 0.3)'
-                  }}
-                >
+                key={index}
+                className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-2 hover:border-primary/50"
+                onClick={() => setSelectedValue(value.title)}
+                style={{
+                  backgroundColor: 'hsl(var(--light-lavender))'
+                }}
+              >
                   <CardHeader className="text-center">
                     <div className="mx-auto mb-4 p-4 bg-primary/10 rounded-full w-fit">
                       <Icon className="h-8 w-8 text-primary" />
