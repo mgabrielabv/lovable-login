@@ -56,6 +56,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } as User;
     }
     if (candidate && candidate.id && candidate.role) return candidate as User;
+    // Nuevo: manejar payload de JWT con userId y rol
+    if (candidate && candidate.userId && candidate.rol) {
+      return {
+        id: candidate.userId.toString(),
+        name: 'Usuario',
+        email: '',
+        role: candidate.rol as UserRole,
+        cedula: '',
+      } as User;
+    }
     return null;
   };
 
