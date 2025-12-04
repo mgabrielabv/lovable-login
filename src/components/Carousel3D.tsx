@@ -66,14 +66,14 @@ export default function Carousel3D() {
         key={foto.id}
         className={`absolute transition-all duration-500 ease-in-out cursor-pointer ${isCenter ? 'z-10' : 'z-1'}`}
         style={{
-          transform: `translateX(${translateX}px) ${transform}`,
+          transform: `translateX(${translateX}px) ${transform} translateX(-40%)`,
           opacity: opacity,
           zIndex: zIndex,
-          left: '34%',
+          left: '50%',
           transformOrigin: 'center center',
           // 👇 Añade esto para centrar en móviles
           width: 'auto',
-          margin: '20 auto',
+          margin: '0 auto',
         }}
       >
           <div className="w-72 h-56 bg-white rounded-lg overflow-hidden shadow-xl"> {/* Tamaño más grande */}
