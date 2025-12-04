@@ -10,7 +10,7 @@ import Carousel3D from "@/components/Carousel3D";
 import MusicalNotesRain from "@/components/MusicalNotesRain";
 import logo from '@/assets/logo.png';
 import foto from "@/assets/foto.png";
-import pensumImage from '../assets/Pensum.jpg';
+import pensumImage from '@/assets/Pensum.jpg';
 import HistoryScroll from '@/components/HistoryScroll';
 
 const Index = () => {
@@ -418,7 +418,7 @@ const Index = () => {
 
       {/* Modal para el Pensum */}
       {showPensum && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto p-4 md:p-6">
             {/* Título */}
             <h2 className="font-display text-xl md:text-3xl font-bold text-primary mb-4 text-center">
@@ -430,7 +430,7 @@ const Index = () => {
               <img 
                 src={pensumImage} 
                 alt="Pensum" 
-                className="w-full h-auto max-h-[70vh] object-contain rounded-lg" 
+                className="w-full h-auto max-h-[80vh] object-contain rounded-lg" 
                 loading="lazy"
               />
             </div>
