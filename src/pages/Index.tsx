@@ -92,7 +92,7 @@ const Index = () => {
           <div className="flex h-20 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-            <img src={logo} alt="Logo Conservatorio" className="h-20 w-40 object-contain" />
+            <img src={logo} alt="Logo Conservatorio" className="h-20 w-20 object-contain" />
             </div>
 
             {/* Desktop Navigation */}
