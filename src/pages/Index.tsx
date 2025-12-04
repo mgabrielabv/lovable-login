@@ -418,23 +418,28 @@ const Index = () => {
 
       {/* Modal para el Pensum */}
       {showPensum && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-xl shadow-lg max-w-7xl max-h-[90vh] overflow-y-auto p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-auto">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto p-4 md:p-6">
             {/* Título */}
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4 text-center">
+            <h2 className="font-display text-xl md:text-3xl font-bold text-primary mb-4 text-center">
               SISTEMA DE RELACIONES DEL PLAN DE ESTUDIO DE LA INSTITUCIÓN
             </h2>
 
             {/* Imagen del pensum */}
-            <div className="flex justify-center">
-              <img src={pensumImage} alt="Pensum" className="max-w-full h-auto rounded-lg" />
+            <div className="flex justify-center w-full">
+              <img 
+                src={pensumImage} 
+                alt="Pensum" 
+                className="w-full h-auto max-h-[70vh] object-contain rounded-lg" 
+                loading="lazy"
+              />
             </div>
 
             {/* Botón para cerrar */}
-            <div className="mt-6 flex justify-center">
+            <div className="mt-4 md:mt-6 flex justify-center">
               <button
                 onClick={() => setShowPensum(false)}
-                className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-primary/90"
+                className="px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-primary/90 w-full md:w-auto"
               >
                 Cerrar
               </button>
