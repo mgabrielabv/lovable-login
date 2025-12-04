@@ -186,15 +186,15 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-secondary/60 to-accent/40" />
         </div>
         <div className="relative z-10 container mx-auto px-4 py-20 text-center">
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-6 animate-fade-in">
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-primary-foreground mb-6">
             Conservatorio de Música<br />José Luis Paz
           </h1>
-          <p className="font-heading text-2xl md:text-3xl lg:text-4xl text-primary-foreground/90 mb-8 animate-fade-in">
+          <p className="font-heading text-2xl md:text-3xl lg:text-4xl text-primary-foreground/90 mb-8">
             Formando músicos integrales desde 1985
           </p>
           <Button 
             size="lg" 
-            className="bg-lavender hover:bg-lavender/90 text-primary font-heading text-lg px-8 animate-fade-in"
+            className="bg-lavender hover:bg-lavender/90 text-primary font-heading text-lg px-8"
             onClick={() => scrollToSection("programas")}
           >
             Descubre Nuestros Programas

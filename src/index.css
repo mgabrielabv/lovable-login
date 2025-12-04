@@ -241,3 +241,6 @@ All colors MUST be HSL.
   color: #fff;
 }
 
+.hero-section {
+  transform: scale(1);
+}
