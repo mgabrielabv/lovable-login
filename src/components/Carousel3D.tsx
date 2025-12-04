@@ -62,19 +62,20 @@ export default function Carousel3D() {
       transform = `rotateY(${angle}deg) scale(${scale})`;
 
       return (
-        <div
-          key={foto.id}
-          className={`absolute transition-all duration-500 ease-in-out cursor-pointer ${isCenter ? 'z-10' : 'z-1'}`}
-          style={{
-            transform: `translateX(${translateX}px) ${transform}`,
-            opacity: opacity,
-            zIndex: zIndex,
-            left: '37%', // Centrar horizontalmente
-            width: 'auto',
-            margin: '0 auto',
-            transformOrigin: 'center center', // Punto de rotación
-          }}
-        >
+      <div
+        key={foto.id}
+        className={`absolute transition-all duration-500 ease-in-out cursor-pointer ${isCenter ? 'z-10' : 'z-1'}`}
+        style={{
+          transform: `translateX(${translateX}px) ${transform}`,
+          opacity: opacity,
+          zIndex: zIndex,
+          left: '34%',
+          transformOrigin: 'center center',
+          // 👇 Añade esto para centrar en móviles
+          width: 'auto',
+          margin: '0 auto',
+        }}
+      >
           <div className="w-72 h-56 bg-white rounded-lg overflow-hidden shadow-xl"> {/* Tamaño más grande */}
             <img
               src={foto.image}
@@ -90,7 +91,7 @@ export default function Carousel3D() {
     });
   };
 
-  return(
+  return (
   <div className="relative w-full h-96 flex items-center justify-center my-6 px-4 md:px-8">
     <div className="relative w-full max-w-4xl mx-auto px-4 md:px-8">
       {renderItems()}

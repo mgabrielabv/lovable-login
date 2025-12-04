@@ -8,8 +8,8 @@ import { Music, Heart, Target, Users, GraduationCap, Piano, Mic2, BookOpen, Cale
 import heroImage from "@/assets/hero-music.jpg";
 import Carousel3D from "@/components/Carousel3D";
 import MusicalNotesRain from "@/components/MusicalNotesRain";
-import logo from '@/assets/logo.jpg';
-import foto from "@/assets/foto.jpg";
+import logo from '@/assets/logo.png';
+import foto from "@/assets/foto.png";
 import pensumImage from '../assets/Pensum.jpg';
 import HistoryScroll from '@/components/HistoryScroll';
 
@@ -92,7 +92,7 @@ const Index = () => {
           <div className="flex h-20 items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <img src={logo} alt="Logo Conservatorio" className="h-8 w-8" />
+            <img src={logo} alt="Logo Conservatorio" className="h-20 w-40 object-contain" />
             </div>
 
             {/* Desktop Navigation */}
@@ -276,7 +276,8 @@ const Index = () => {
                   <div className="space-y-4">
                     <h3 className="font-heading text-2xl font-bold text-primary text-center">Origen del Conservatorio de Música José Luis Paz</h3>
                     <p className="font-body text-base leading-relaxed text-[#5d0067] text-center">
-                      El Conservatorio José Luis Paz nace de una visión compartida: democratizar la educación musical de excelencia y formar artistas comprometidos con su comunidad. Desde sus inicios, ha mantenido un compromiso inquebrantable con la calidad pedagógica y el desarrollo integral de sus estudiantes.
+                      El Conservatorio José Luis Paz nace de una visión compartida: democratizar la educación musical de excelencia y formar artistas comprometidos con su comunidad.
+                      Desde sus inicios, ha mantenido un compromiso inquebrantable con la calidad pedagógica y el desarrollo integral de sus estudiantes.
                     </p>
                   </div>
 
