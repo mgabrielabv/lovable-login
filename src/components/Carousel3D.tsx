@@ -73,7 +73,7 @@ export default function Carousel3D() {
           transformOrigin: 'center center',
           // 👇 Añade esto para centrar en móviles
           width: 'auto',
-          margin: '0 auto',
+          margin: '20 auto',
         }}
       >
           <div className="w-72 h-56 bg-white rounded-lg overflow-hidden shadow-xl"> {/* Tamaño más grande */}
