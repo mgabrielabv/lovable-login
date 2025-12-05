@@ -428,11 +428,12 @@ const Index = () => {
             {/* Imagen del pensum */}
             <div className="flex justify-center w-full">
               <img 
-                src={pensumImage} 
-                alt="Pensum" 
-                className="w-full h-auto max-h-[80vh] object-contain rounded-lg" 
-                loading="lazy"
-              />
+              src={pensumImage} 
+              alt="Pensum" 
+              className="w-full h-auto max-h-[70vh] object-contain"
+              loading="eager"   // ← Fuerza la carga inmediata
+              fetchPriority="high" // ← Prioridad alta para móviles
+            />
             </div>
 
             {/* Botón para cerrar */}
